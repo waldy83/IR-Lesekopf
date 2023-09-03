@@ -1,1 +1,1 @@
-Scripts for ESPLesekopf Tasmota
+Tasmota scripts for IR-Lesekopf
