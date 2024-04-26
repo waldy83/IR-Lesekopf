@@ -1,0 +1,16 @@
+>D
+>B
+=>sensor53 r
+>M 1
++1,3,o,0,300,STROM,1,10,2F3F210D0A,063030300D0A
+1,0(@1,Zählernummer,,Meter_number,0  
+1,=h===================  
+1,8.0(@1,Total T1 & T2,kWh,Total,2  
+1,8.1(@1,T1 aktuell,kWh,Total_T1,2  
+1,8.2(@1,T2 aktuell,kWh,Total_T2,2  
+1,=h===================  
+1,8.1.1(@1,T1 letzte Saison,kWh,Total_T1-1,2   
+1,8.2.1(@1,T2 letzte Saison,kWh,Total_T2-1,2   
+1,8.1.2(@1,T1 vorletzte Saison,kWh,Total_T1-2,2
+1,8.2.2(@1,T2 vorletzte Saison,kWh,Total_T2-2,2     
+#

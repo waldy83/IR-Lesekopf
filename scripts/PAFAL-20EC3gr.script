@@ -1,0 +1,9 @@
+>D
+>B
+->sensor53 r
+>M 1
++1,3,o,0,300,PAFAL,1,30,2F3F210D0A,063030300D0A
+1,1.8.1*00(@1),Gesamtverbrauch_HT,kWh,Total_IN,2
+1,1.8.2*00(@1),Gesamtverbrauch_NT,kWh,Total_IN,2
+1,2.8.0*00(@1),Einspeisung,kWh,Total_OUT,2
+#
