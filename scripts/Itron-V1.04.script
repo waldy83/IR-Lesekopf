@@ -1,0 +1,20 @@
+>D
+;*****
+;
+;*****
+; After selecting a script, be sure to activate it and reboot!
+; Nachdem auswaehlen eines Scripts, unbedingt dieses aktivieren und einen Neustart durchfuehren!
+;*****
+>B
+=>sensor53 r
+; Set teleperiod to 10sec
+; Interval fuer das Senden von Daten auf 10 Sekunden setzen
+tper=10
+>M 1
+;
+; Setupline
++1,12,s,0,9600,ELZ
+1,77070100600100ff@#,Zählernummer,,Wert,0
+1,77070100010800ff@1000,Verbrauch,kWh,ELZ_PV_1.8.0,1
+1,77070100020800ff@1000,Erzeugung,kWh,ELZ_PV_2.8.0,1
+#

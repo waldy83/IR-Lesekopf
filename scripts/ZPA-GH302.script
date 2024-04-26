@@ -1,0 +1,19 @@
+>D
+;*****
+;
+;*****
+; After selecting a script, be sure to activate it and reboot!
+; Nachdem auswaehlen eines Scripts, unbedingt dieses aktivieren und einen Neustart durchfuehren!
+;*****
+>B
+=>sensor53 r
+; Set teleperiod to 10sec
+; Interval fuer das Senden von Daten auf 10 Sekunden setzen
+tper=10
+>M 1
+;
+; Setupline
++1,3,s,0,9600,Strom
+1,77070100010800ff@1000,Bezug,kWh,Total_in,0
+1,77070100020800ff@1000,Einspeisung,kWh,Total_out,0
+#
