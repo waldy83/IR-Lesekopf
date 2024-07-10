@@ -9,7 +9,7 @@
 ;Interval fuer das Senden von Daten auf 10Sekunden / Set teleperiod to 10sec  
 tper=10
 >M 1
-+1,14,s,0,9600,Strom
++1,3,s,0,9600,Strom
 1,77070100010800ff@1000,Gesamt Verbrauch,kWh,Total_in,3
 1,77070100010801ff@1000,Gesamt Verbrauch T 1,kWh,HT_in,3            ;nur speziell im vorliegenden Fall, ggf. Dokumentation
 1,77070100010802ff@1000,Gesamt Verbrauch T 2,kWh,NT_in,3            ;oder tatsächliche Klemmreihenfolge prüfen (lassen)!
