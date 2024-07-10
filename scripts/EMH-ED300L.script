@@ -1,4 +1,10 @@
->D    
+>D
+;*****
+; EMH-ED300L
+;*****
+; After selecting a script, be sure to activate it and reboot!
+; Nachdem auswaehlen eines Scripts, unbedingt dieses aktivieren und einen Neustart durchfuehren!
+;*****  
 >B   
 ->sensor53 r  
 >M 2  
