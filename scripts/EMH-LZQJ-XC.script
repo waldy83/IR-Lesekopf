@@ -29,7 +29,7 @@ ends
 ; mit einer festen Baudrate von 300 Baud und kann nicht umgeschaltet werden
 ; Zaehler EMH LZQJ-XC auslesen dauert 4:21 Minuten. Kuerzere TelePeriod als 300sek/5min daher nicht sinnvoll.
 
-+1,5,o,0,300,METER,4
++1,3,o,0,300,METER,4
 1,0.0.0(@1,Zähler-Nr.,,0_0_0,0
 1,0.0.9(@#),Zähler-ID,,0_0_9,0
 1,0.9.1(@1),Uhrzeit,,0_9_1,0
