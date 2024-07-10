@@ -9,7 +9,7 @@
 ->sensor53 r  
 >M 1  
 +1,3,s,0,9600,Haus  
-1,770701000F0700FF@1,Leistung,W,Power_curr,0  
+1,77070100100700FF@1,Leistung,W,Power_curr,1
 1,77070100010800FF@1000,Verbrauch,kWh,Total_in,2
 1,77070100020800FF@1000,Netzeinspeisung,kWh,Total_out,2  
 #   
