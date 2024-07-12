@@ -49,11 +49,11 @@ tper=10
 1,=h<hr/>
 ;
 ;all commented lines from here on just for completeness
-;1,7707010000020000@1,Firmware Version,,FwVer,0
-;1,77070100605a0201@1,Firmware Checksum,,FwCheck,0
-;1,7707010061610000@1,Error Register,,ErrorReg,0
-;1,7707010060320101@1,Hardware Version,,HwVer,0
-;1,7707010060320104@1,Parameter Version,,ParamVer,0
+1,7707010000020000@1,Firmware Version,,FwVer,0
+1,77070100605a0201@1,Firmware Checksum,,FwCheck,0
+1,7707010061610000@1,Error Register,,ErrorReg,0
+1,7707010060320101@1,Hardware Version,,HwVer,0
+1,7707010060320104@1,Parameter Version,,ParamVer,0
 1,77070100600100ff@#,Server-ID,,ID,0
 ;You can find your server-id printed on your meter. If you want you can also convert it to your Identifikationsnummer with some ASCII, DEC and HEX encoding. 0A-01-45-46-52-ST-UV-WX-YZ = 1EFR + string(S) + string(T) + hexToDec(UVWXYZ)
 #
