@@ -66,6 +66,7 @@
 	    { "label": "Siemens-IM-350", "filename": "Siemens-IM-350.script" },
 	    { "label": "Siemens-TD-3511", "filename": "Siemens-TD-3511.script" },
 	    { "label": "ZPA-GH302", "filename": "ZPA-GH302.script" },
-	    { "label": "ZPA-GH305", "filename": "ZPA-GH305.script" }
+	    { "label": "ZPA-GH305", "filename": "ZPA-GH305.script" },
+	    { "label": "ZZZ-TEST", "filename": "ZZZ-TEST.script" }
     ]
 }
