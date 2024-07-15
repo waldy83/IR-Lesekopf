@@ -69,6 +69,6 @@
 	    { "label": "ZPA-GH305", "filename": "ZPA-GH305.script" },
 	    { "label": "ZZZ-TEST", "filename": "ZZZ-TEST.script" },
 	    { "label": "ZZZ-TEST-2", "filename": "ZZZ-TEST-2.script" },
-	    { "label": "ZZZ-TEST-4", "filename": "ZZZ-TEST-4.script" }
+	    { "label": "ZZZ-TEST-3", "filename": "ZZZ-TEST-3.script" }
     ]
 }
