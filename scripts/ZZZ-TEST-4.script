@@ -6,6 +6,11 @@
 ; - Skript auswaehlen
 ; - "Speichern" anklicken
 ;*****
+; protocol is OBIS ASCII
+; Gerät mit hex "2F3F210D0A" = ASCII "/?!" aufwecken.
+; Zaehler EMH LZQJ-XC arbeitet im "Protocol mode A" IEC 62056-21:2002(E) 6.4.1
+; mit einer festen Baudrate von 300 Baud und kann nicht umgeschaltet werden
+; Zaehler EMH LZQJ-XC auslesen dauert 4:21 Minuten. Kuerzere TelePeriod als 300 Sekunden daher nicht sinnvoll.
 >B
 =>sensor53 r
 ; Set teleperiod to 10sec
@@ -15,7 +20,7 @@ tper=10
 >M 1
 ;
 ; Setupline
-+1,3,o,0,300,Strom,1,50,2F3F210D0A,307A300d0A
++1,3,o,0,300,METER,1,3000,2F3F210D0A
 ;
 1,1-0:1.8.0*255(@1,Gesamtverbrauch,KWh,total,4
 1,1-0:1.8.0*96(@1,Verbrauch 1 Tag,KWh,total_1d,4
