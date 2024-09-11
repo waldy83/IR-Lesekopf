@@ -1,0 +1,184 @@
+>D 40
+;*****
+; Logarex LK13BE + Chart
+;*****
+M:p:sday=0 288
+M:p:dcon=0 31
+M:p:mcon=0 12
+M:s4h=0 480
+EnFrGrid=0
+power=0
+p:mval=0
+p:dval=0
+tmp=0
+m5=0
+cstr="cnt0/12"
+cstr2="cnth0/120"
+utm="00d 00h 00m"
+avgv=0
+avgv2=0
+avgvc=0
+avgvc2=0
+hour=0
+da=31
+>B
+=>sensor53 r
+is(0 "Jan|Feb|Mär|Apr|Mai|Jun|Jul|Aug|Sep|Okt|Nov|Dez|")
+smlj=0
+#rst24h
+for tmp 1 sday[-1] 1
+sday[tmp]=0
+next
+#daysub
+wcs <div id="day" style="text-align:center;width:400px"></div>
+wcs <script language="JavaScript">function drawChart(){
+wcs var cssc={'headerRow':'hRow','rowNumberCell':'hCol','tableCell':'tCell'};
+wcs var data=google.visualization.arrayToDataTable([['Tag','Energie [kWh]',{role: 'style'}],
+for tmp 1 dcon[-1] 1
+if (tmp==day)
+{
+wcs [%tmp%,%dcon[tmp]%,'red'],
+}
+if (tmp<day)
+{
+wcs [%tmp%,%dcon[tmp]%,'green'],
+}
+if (tmp>day)
+{
+wcs [%tmp%,%dcon[tmp]%,''],
+}
+next
+wcs ]);
+wcs var options={chartArea:{left:40,width:'86%%'},legend:'none',title:'Tagesverbräuche Monatsansicht',vAxis:{format:'# kWh'},hAxis:{title:'Tag',ticks:[1,5,10,15,20,25,30]}};
+wcs var chart=new google.visualization.ColumnChart(document.getElementById('day'));
+wcs chart.draw(data,options);}google.charts.setOnLoadCallback(drawChart);</script>
+#monthsub
+wcs <div id="month" style="text-align:center;width:400px"></div>
+wcs <script language="JavaScript">function drawChart(){
+wcs var cssc={'headerRow':'hRow','rowNumberCell':'hCol','tableCell':'tCell'};
+wcs var data=google.visualization.arrayToDataTable([['Monat','Energie [kWh]',{role: 'style'}],
+for tmp 1 12 1
+if (tmp<month)
+{
+wcs ['%is[tmp]%',%mcon[tmp]%,'green'],
+}
+if (tmp==month)
+{
+wcs ['%is[tmp]%',%mcon[tmp]%,'red'],
+}
+if (tmp>month)
+{
+wcs ['%is[tmp]%',%mcon[tmp]%,''],
+}
+next
+wcs ]);
+wcs var options={chartArea:{left:40,width:'86%%'},legend:'none',title:'Monatliche Verbräuche Jahresansicht',vAxis:{format:'# kWh'}};
+wcs var chart=new google.visualization.ColumnChart(document.getElementById('month'));
+wcs chart.draw(data,options);}google.charts.setOnLoadCallback(drawChart);</script>
+>M 1
++1,3,o,0,9600,LK13BE,1,30,2F3F210D0A,063035310D0A
+1,1-0:16.7.0*255(@1,Verbrauch aktuell,W,power,2
+1,1-0:1.8.0*255(@1,Gesamtverbrauch,kWh,total,2
+1,1-0:2.8.0*255(@1,Gesamteinspeisung,kWh,Etotal,2
+1,=h<hr/>
+1,1-0:1.8.0*96(@1,Verbrauch 1 Tag,kWh,total_1d,2
+1,1-0:1.8.0*97(@1,Verbrauch 7 Tage,kWh,total_7d,2
+1,1-0:1.8.0*98(@1,Verbrauch 30 Tage,kWh,total_30d,2
+1,1-0:1.8.0*99(@1,Verbrauch 365 Tage,kWh,total_365d,2
+1,1-0:1.8.0*100(@1,Verbrauch ab reset,kWh,total_reset,2
+#
+>S
+if (sml[2]>0)
+{
+smlj=1
+}
+if (year<2020)
+{
+print NTP not ready
+break
+}
+if (secs%3==0)
+{
+power=sml[1]
+avgv+=power
+avgv2+=power
+avgvc+=1
+avgvc2+=1
+}
+if (secs%30==0)
+{
+s4h=avgv/avgvc
+avgv=0
+avgvc=0
+cstr2="cnth"+s(1.0((((hours+20)*120)+(mins*2)+(int(secs/30)))%2880+1))+"/120"
+}
+if (secs%60==0)
+{
+hour=hours
+utm=s(2.0(int(uptime/1440)))+"d "+s(2.0(int(uptime/60)%24))+"h "+s(2.0(uptime%60))+"m"
+EnFrGrid=sml[2]
+dcon[day]=EnFrGrid-dval
+mcon[month]=EnFrGrid-mval
+m5=int((((hours*60)+mins)/5)+1)
+sday[0]=m5
+if (chg[m5]>0)
+{
+sday[m5]=int(avgv2/avgvc2)
+avgv2=0
+avgvc2=0
+}
+cstr="cnth"+s(1.0(((hours)*12)+int(mins/5))+1)+"/12"
+if ((chg[hour]>0) and (hour==0))
+{
+if (day>1)
+{
+da=day
+}
+else
+{
+for tmp (da+1) 31 1
+dcon[tmp]=0
+next
+mval=EnFrGrid
+}
+dval=EnFrGrid
+svars
+}
+}
+>W
+Tagesverbrauch{m}%2(EnFrGrid-dval)% kWh
+Monatsverbrauch{m}%2(EnFrGrid-mval)% kWh
+Datum{m}%s(2.0day)%.%s(2.0month)%.%s(2.0year)% - %s(2.0hours)%:%s(2.0mins)%:%s(2.0secs)%
+Uptime{m}%0utm%
+$<div style="margin-left:-20px">
+$<div id="chart1" style="text-align:center;width:400px"></div>
+$gc(lt s4h "wr" "Leistung [W]" cstr2)
+$var options = {
+$chartArea:{left:60,width:'83%%'},
+$legend:'none',
+$vAxis:{format:'# W'},
+$explorer:{actions:['dragToZoom', 'rightClickToReset']},
+$series: {0: {type: 'area'}},
+$title:'Verbrauch 4 Stunden [Watt]'
+$};
+$gc(e)
+$<div id="chart2" style="text-align:center;width:400px"></div>
+$gc(lt sday "wr" "Leistung [W]" cstr)
+$var options = {
+$chartArea:{left:60,width:'83%%'},
+$legend:'none',
+$vAxis:{format:'# W'},
+$explorer:{actions:['dragToZoom', 'rightClickToReset']},
+$series: {0: {type: 'area'}},
+$title:'Verbrauch 24 Stunden [Watt]'
+$};
+$gc(e)
+%=#daysub
+%=#monthsub
+$<center><span style="font-size:10px;">
+$Version 28.03.2024 by ottelo.jimdo.de & Dennis<br>
+$free heap: %s(0.0heap)% bytes<br>
+$Hinweis: Die Daten werden immer um Mitternacht gespeichert!<br>
+$Sofort speichern dies in Console eingeben: "script >svars"<br>
+$</span></center></div>
+#
