@@ -69,6 +69,7 @@
 	    { "label": "ZPA-GH302", "filename": "ZPA-GH302.script" },
 	    { "label": "ZPA-GH305", "filename": "ZPA-GH305.script" },
 	    { "label": "ZZZ-Spiegeltest", "filename": "ZZZ-Spiegeltest.script" },
+	    { "label": "ZZZ-TEST-Chart", "filename": "ZZZ-TEST-Chart.script" },
 	    { "label": "ZZZ-TEST", "filename": "ZZZ-TEST.script" },
 	    { "label": "ZZZ-TEST-2", "filename": "ZZZ-TEST-2.script" },
 	    { "label": "ZZZ-TEST-3", "filename": "ZZZ-TEST-3.script" },
