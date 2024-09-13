@@ -4,15 +4,12 @@
 ;
 ; Quelle: https://www.photovoltaikforum.com/thread/181836-einrichtung-tasmota-z%C3%A4hler-logarex-lk13bd-lk13bd202035
 ;*****
-; After selecting a script, be sure to activate it and reboot!
-; Nachdem auswaehlen eines Scripts, unbedingt dieses aktivieren und einen Neustart durchfuehren!
+; - Haken bei "Skript aktivieren" setzen
+; - Skript auswaehlen
+; - Speichern anklicken
 ;*****
 >B
 =>sensor53 r
-;
-; Set teleperiod to 10sec
-; Interval fuer das Senden von Daten auf 10 Sekunden setzen
-tper=10
 ;
 >M 1
 ;
