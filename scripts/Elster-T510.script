@@ -1,4 +1,11 @@
 >D
+;*****
+;
+;*****
+; - Haken bei "Skript aktivieren" setzen
+; - Skript auswaehlen
+; - Speichern anklicken
+;*****
 ;Var for baudrate changing
 res=0
 ;Var for counter see >F=ms  
