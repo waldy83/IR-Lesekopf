@@ -13,9 +13,6 @@
 ; Zaehler EMH LZQJ-XC auslesen dauert 4:21 Minuten. Kuerzere TelePeriod als 300 Sekunden daher nicht sinnvoll.
 >B
 =>sensor53 r
-; Set teleperiod to 10sec
-; Interval fuer das Senden von Daten auf 10 Sekunden setzen
-tper=10
 ;
 >M 1
 ;
