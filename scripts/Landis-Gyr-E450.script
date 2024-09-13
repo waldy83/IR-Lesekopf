@@ -2,8 +2,9 @@
 ;*****
 ; Landis-Gyr-E450
 ;*****
-; After selecting a script, be sure to activate it and reboot!
-; Nachdem auswaehlen eines Scripts, unbedingt dieses aktivieren und einen Neustart durchfuehren!
+; - Haken bei "Skript aktivieren" setzen
+; - Skript auswaehlen
+; - Speichern anklicken
 ;*****
 >B
 smlj=0
@@ -16,6 +17,8 @@ then
 smlj|=1
 endif
 >M 2
+;
+; Setupline
 +1,3,r,0,2400,Haus
 1,=so3,512
 1,=so4,GUEK
