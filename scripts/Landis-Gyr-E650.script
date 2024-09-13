@@ -1,5 +1,11 @@
 >D
-; Script needs v12+
+;*****
+;
+;*****
+; - Haken bei "Skript aktivieren" setzen
+; - Skript auswaehlen
+; - Speichern anklicken
+;*****
 res=0
 scnt=0
 >F
@@ -19,6 +25,8 @@ case 200
 scnt=0
 ends      
 >M 1
+;
+; Setupline
 +1,3,o,0,4800,data,1
 
 1,1-1:1.8.0(@1,energy_import,kWh,1-8-0,1
