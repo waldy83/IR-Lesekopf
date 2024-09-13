@@ -1,4 +1,11 @@
 >D
+;*****
+;
+;*****
+; - Haken bei "Skript aktivieren" setzen
+; - Skript auswaehlen
+; - Speichern anklicken
+;*****
 scnt=0
 res=0
 
@@ -30,6 +37,8 @@ scnt=0
 ends
 
 >M 1
+;
+; Setupline
 +1,3,o,0,9600,AS1440,1
 1,1.7.0(@0.001,Power In,W,power_in,16
 1,1.8.1(@1,Total In,kWh,Total_in,1
