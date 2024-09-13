@@ -1,10 +1,21 @@
->D  
->B  
-->sensor53 r
->M 3  
+>D
+;*****
+;
+;*****
+; - Haken bei "Skript aktivieren" setzen
+; - Skript auswaehlen
+; - Speichern anklicken
+;*****
+>B
+=>sensor53 r
+;
+>M 3
+;
+; Setupline
 +1,1,c,0,10,H20  
 +2,4,c,0,50,GAS  
-+3,3,s,0,9600,SML  
++3,3,s,0,9600,SML
+;
 1,1-0:1.8.0*255(@10000,Water reading,cbm,Count,4  
 2,=h==================  
 2,1-0:1.8.0*255(@100,Gas reading,cbm,Count,3  
