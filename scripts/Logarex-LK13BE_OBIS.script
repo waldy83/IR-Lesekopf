@@ -11,10 +11,6 @@
 >B
 =>sensor53 r
 ;
-; Set teleperiod to 10sec
-; Interval fuer das Senden von Daten auf 10 Sekunden setzen
-tper=10
-;
 >M 1
 ;
 ; Setupline
