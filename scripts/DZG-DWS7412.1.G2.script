@@ -5,15 +5,12 @@
 ; DZG-DVS74 4L-Drehstromzähler
 ; DZG-DWS74 4L-Zähler mit Option Einphasenzähler
 ;*****
-; After selecting a script, be sure to activate it and reboot!
-; Nachdem auswaehlen eines Scripts, unbedingt dieses aktivieren und einen Neustart durchfuehren!
+; - Haken bei "Skript aktivieren" setzen
+; - Skript auswaehlen
+; - Speichern anklicken
 ;*****
 >B
 =>sensor53 r
-;
-; Set teleperiod to 10sec
-; Interval fuer das Senden von Daten auf 10 Sekunden setzen
-tper=10
 ;
 >M 1
 ;
