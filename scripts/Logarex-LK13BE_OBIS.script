@@ -21,9 +21,9 @@
 1,1-0:96.1.0*255(@#),Zählernummer,,id,0
 ;1,1-0:0.2.0*255(@#),Firmware,,fw,0
 1,=h<hr/>
-1,1-0:1.8.0*255(@1,Gesamtverbrauch,kWh,total,2
+1,1-0:1.8.0*255(@1,Gesamtverbrauch,kWh,total_in,2
 1,=h<hr/>
-1,1-0:2.8.0*255(@1,Gesamteinspeisung,kWh,Etotal,2
+1,1-0:2.8.0*255(@1,Gesamteinspeisung,kWh,total_out,2
 1,=h<hr/>
 ;
 ; available with PIN
