@@ -1,6 +1,12 @@
 >D 40
 ;*****
 ; Logarex LK13BE + Chart
+;
+; Tested by waldy
+;*****
+; - Haken bei "Skript aktivieren" setzen
+; - Skript auswaehlen
+; - Speichern anklicken
 ;*****
 M:p:sday=0 288
 M:p:dcon=0 31
@@ -10,6 +16,7 @@ EnFrGrid=0
 power=0
 p:mval=0
 p:dval=0
+p:yval=0
 tmp=0
 m5=0
 cstr="cnt0/12"
@@ -20,7 +27,7 @@ avgv2=0
 avgvc=0
 avgvc2=0
 hour=0
-da=31
+da=1
 >B
 =>sensor53 r
 is(0 "Jan|Feb|Mär|Apr|Mai|Jun|Jul|Aug|Sep|Okt|Nov|Dez|")
@@ -68,7 +75,7 @@ wcs ['%is[tmp]%',%mcon[tmp]%,'red'],
 }
 if (tmp>month)
 {
-wcs ['%is[tmp]%',%mcon[tmp]%,''],
+wcs ['%is[tmp]%',%mcon[tmp]%,'blue'],
 }
 next
 wcs ]);
@@ -80,12 +87,6 @@ wcs chart.draw(data,options);}google.charts.setOnLoadCallback(drawChart);</scrip
 1,1-0:16.7.0*255(@1,Verbrauch aktuell,W,power,2
 1,1-0:1.8.0*255(@1,Gesamtverbrauch,kWh,total_in,2
 1,1-0:2.8.0*255(@1,Gesamteinspeisung,kWh,total_out,2
-1,=h<hr/>
-1,1-0:1.8.0*96(@1,Verbrauch 1 Tag,kWh,total_1d,2
-1,1-0:1.8.0*97(@1,Verbrauch 7 Tage,kWh,total_7d,2
-1,1-0:1.8.0*98(@1,Verbrauch 30 Tage,kWh,total_30d,2
-1,1-0:1.8.0*99(@1,Verbrauch 365 Tage,kWh,total_365d,2
-1,1-0:1.8.0*100(@1,Verbrauch ab reset,kWh,total_reset,2
 #
 >S
 if (sml[2]>0)
@@ -141,6 +142,10 @@ dcon[tmp]=0
 next
 mval=EnFrGrid
 }
+if (chg[year]>0)
+{
+yval=EnFrGrid
+}
 dval=EnFrGrid
 svars
 }
@@ -148,6 +153,7 @@ svars
 >W
 Tagesverbrauch{m}%2(EnFrGrid-dval)% kWh
 Monatsverbrauch{m}%2(EnFrGrid-mval)% kWh
+Jahresverbrauch{m}%2(EnFrGrid-yval)% kWh
 Datum{m}%s(2.0day)%.%s(2.0month)%.%s(2.0year)% - %s(2.0hours)%:%s(2.0mins)%:%s(2.0secs)%
 Uptime{m}%0utm%
 $<div style="margin-left:-20px">
@@ -176,8 +182,7 @@ $gc(e)
 %=#daysub
 %=#monthsub
 $<center><span style="font-size:10px;">
-$Version 28.03.2024 by ottelo.jimdo.de & Dennis<br>
-$free heap: %s(0.0heap)% bytes<br>
+$Version 20.10.2024 by ottelo.jimdo.de<br>
 $Hinweis: Die Daten werden immer um Mitternacht gespeichert!<br>
 $Sofort speichern dies in Console eingeben: "script >svars"<br>
 $</span></center></div>
