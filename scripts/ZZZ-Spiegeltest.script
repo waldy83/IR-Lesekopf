@@ -20,7 +20,12 @@
 ; Setupline
 +1,3,o,0,9600,TEST,1,10,57616C64792077617220686965722121210D0A
 ;
-1,1-0:1.8.1*255(@1,Total Consumed,KWh,Total_in,3
-1,1-0:2.8.1*255(@1,Total Delivered,KWh,Total_out,3
-1,1-0:0.0.0*255(@#),Meter Number,,Meter_number,0
+1,1-0:1.8.0*255(@1,Spiegeltest
+;
+>W
+<div><center>Spiegeltest !!!<br>
+- Dump mit sensor53 d1 in der Konsole einschalten
+- Anschließend sollte folgendes im log erscheinen "Waldy war hier!!!"
+- Nach dem Testen den Dump mit sensor53 d0 wieder ausschalten !!!
+</center></div>
 #
