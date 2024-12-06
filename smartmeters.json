@@ -16,6 +16,8 @@
 	    { "label": "DZG-DWS76", "filename": "DZG-DWS76.script" },
 	    { "label": "DZG-DWSB12.2", "filename": "DZG-DWSB12.2.script" },
 	    { "label": "DZG-DWZE12.2.G2", "filename": "DZG-DWZE12.2.G2.script" },
+	    { "label": "DZG-DxS7420", "filename": "DZG-DxS7420.script" },
+	    { "label": "DZG-DxS7420+Chart", "filename": "DZG-DxS7420+Chart.script" },
 	    { "label": "EasyMeter-Q1A", "filename": "EasyMeter-Q1A.script" },
 	    { "label": "EasyMeter-Q1D", "filename": "EasyMeter-Q1D.script" },
 	    { "label": "EasyMeter-Q3A", "filename": "EasyMeter-Q3A.script" },
