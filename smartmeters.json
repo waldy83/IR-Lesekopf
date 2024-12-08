@@ -27,6 +27,7 @@
 	    { "label": "eBZ-DD3-SMZ1", "filename": "eBZ-DD3-SMZ1.script" },
 	    { "label": "eBZ-MD3", "filename": "eBZ-MD3.script" },
 	    { "label": "EFR-SGM-Cx-Dx", "filename": "EFR-SGM-Cx-Dx.script" },
+	    { "label": "EFR-SGM-Cx-Dx+Chart", "filename": "EFR-SGM-Cx-Dx+Chart.script" },
 	    { "label": "Elster-Honeywell-AS1440", "filename": "Elster-Honeywell-AS1440.script" },
 	    { "label": "Elster-Honeywell-AS2020", "filename": "Elster-Honeywell-AS2020.script" },
 	    { "label": "Elster-T510", "filename": "Elster-T510.script" },
