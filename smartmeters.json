@@ -52,6 +52,7 @@
 	    { "label": "Iskra-MT-691", "filename": "Iskra-MT-691.script" },
 	    { "label": "Itron-V1.04", "filename": "Itron-V1.04.script" },
 	    { "label": "KAIFA-MB310H4BDE", "filename": "KAIFA-MB310H4BDE.script" },
+	    { "label": "KAIFA-MB310H4BDE+Chart", "filename": "KAIFA-MB310H4BDE+Chart.script" },
 	    { "label": "Kamstrup-Multical-4xx-6xx-8xx", "filename": "Kamstrup-Multical-4xx-6xx-8xx.script" },
 	    { "label": "Kamstrup-Multical-M401", "filename": "Kamstrup-Multical-M401.script" },
 	    { "label": "Landis-Gyr-E220", "filename": "Landis-Gyr-E220.script" },
