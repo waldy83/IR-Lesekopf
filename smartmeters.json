@@ -79,6 +79,7 @@
 	    { "label": "ZZZ-TEST-1", "filename": "ZZZ-TEST-1.script" },
 	    { "label": "ZZZ-TEST-2", "filename": "ZZZ-TEST-2.script" },
 	    { "label": "ZZZ-TEST-3", "filename": "ZZZ-TEST-3.script" },
-	    { "label": "ZZZ-TEST-4", "filename": "ZZZ-TEST-4.script" }
+	    { "label": "ZZZ-TEST-4", "filename": "ZZZ-TEST-4.script" },
+	    { "label": "ZZZ-TEST-GAS", "filename": "ZZZ-TEST-GAS.script" }
     ]
 }
