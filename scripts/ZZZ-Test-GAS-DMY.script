@@ -28,7 +28,10 @@ save=0
 =>sensor53 r
 is(0 "Jan|Feb|Mär|Apr|Mai|Jun|Jul|Aug|Sep|Okt|Nov|Dez|")
 smlj=0
-
+;
+;Anfangszählerstand
+=>sensor53 c1 0
+;
 
 >M 1
 ; Setupline
