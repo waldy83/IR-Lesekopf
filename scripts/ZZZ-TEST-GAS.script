@@ -12,7 +12,7 @@
 =>sensor53 r
 ;
 ;Anfangszählerstand
-=>sensor53 c1 3485885
+=>sensor53 c1 0
 ;
 >M 1
 ;
