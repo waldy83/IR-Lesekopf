@@ -74,13 +74,14 @@
 	    { "label": "Siemens-TD-3511", "filename": "Siemens-TD-3511.script" },
 	    { "label": "ZPA-GH302", "filename": "ZPA-GH302.script" },
 	    { "label": "ZPA-GH305", "filename": "ZPA-GH305.script" },
+	    { "label": "ZZZ-GAS", "filename": "ZZZ-GAS.script" },
+	    { "label": "ZZZ-GAS-DMY", "filename": "ZZZ-GAS-DMY.script" },
+	    { "label": "ZZZ-GAS-DMY+Chart", "filename": "ZZZ-GAS-DMY+Chart.script" },  
 	    { "label": "ZZZ-Spiegeltest", "filename": "ZZZ-Spiegeltest.script" },
 	    { "label": "ZZZ-TEST-Chart", "filename": "ZZZ-TEST-Chart.script" },
 	    { "label": "ZZZ-TEST-1", "filename": "ZZZ-TEST-1.script" },
 	    { "label": "ZZZ-TEST-2", "filename": "ZZZ-TEST-2.script" },
 	    { "label": "ZZZ-TEST-3", "filename": "ZZZ-TEST-3.script" },
-	    { "label": "ZZZ-TEST-4", "filename": "ZZZ-TEST-4.script" },
-	    { "label": "ZZZ-TEST-GAS", "filename": "ZZZ-TEST-GAS.script" },
-	    { "label": "ZZZ-TEST-GAS-DMY", "filename": "ZZZ-Test-GAS-DMY.script" }
+	    { "label": "ZZZ-TEST-4", "filename": "ZZZ-TEST-4.script" }
     ]
 }
