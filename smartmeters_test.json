@@ -1,0 +1,14 @@
+{
+  "smartmeters": [
+    {
+      "manufacturer": "Iskra",
+      "label": "MT 681 (SML)",
+      "filename": "sm_mt681"
+    },
+    {
+      "manufacturer": "Hager",
+      "label": "EHZ161 (OBIS)",
+      "filename": "sm_ehz161"
+    }
+  ]
+}
