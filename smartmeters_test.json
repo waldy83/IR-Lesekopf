@@ -6,9 +6,29 @@
       "filename": "sm_mt681"
     },
     {
+      "manufacturer": "Iskra",
+      "label": "MT 382 (SML)",
+      "filename": "sm_mt382"
+    },
+    {
       "manufacturer": "Hager",
       "label": "EHZ161 (OBIS)",
       "filename": "sm_ehz161"
+    },
+    {
+      "manufacturer": "Hager",
+      "label": "EHZ363 (SML)",
+      "filename": "sm_ehz363"
+    },
+    {
+      "manufacturer": "Landis+Gyr",
+      "label": "E350 ZMD120 (SML)",
+      "filename": "sm_zmd120"
+    },
+    {
+      "manufacturer": "Landis+Gyr",
+      "label": "E450 ZMF120 (SML)",
+      "filename": "sm_zmf120"
     }
   ]
 }
