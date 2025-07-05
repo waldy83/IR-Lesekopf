@@ -1,0 +1,21 @@
+>D
+;*****
+; Gaszähler
+;
+; Tested by waldy
+;*****
+; - Haken bei "Skript aktivieren" setzen
+; - Skript auswaehlen
+; - Speichern anklicken
+;*****
+>B
+=>sensor53 r
+;
+;Anfangszählerstand
+=>sensor53 c1 0
+;
+>M 1
+;
+; Setupline
++1,14,c,1,-500,Gas
+1,1-0:1.8.0*255(@100,Gesamtverbrauch,m3,total,18)
