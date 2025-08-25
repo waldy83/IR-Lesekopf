@@ -1,0 +1,236 @@
+>D 40
+;*****
+; Gaszähler - DMY + Charts
+;
+; Chart Script by ottelo.jimdo.de - modified by waldy
+;
+; Tested by waldy
+;*****
+; - Haken bei "Skript aktivieren" setzen
+; - Skript auswaehlen
+; - Speichern anklicken
+;*****
+
+; -- ARRAYS --
+; 24h chart
+M:p:sday=0 288
+; Tagesnetzbezug Tabelle 1-31
+M:p:dcon=0 31
+; Monatsverbrauch Tabelle 1-12
+M:p:mcon=0 12
+; 4h Chart, Neuer Wert alle 30s
+M:s4h=0 480
+
+; -- VARS --
+; Netzbezug [m3]
+GasTotal=0
+
+; Tages, Monats, Jahres Verbrauch
+p:mval=0
+p:dval=0
+p:yval=0
+p:da=1
+tmp=0
+m5=0
+cstr="cnt0/12"
+cstr2="cnth0/120"
+utm="00d 00h 00m"
+hour=0
+yr=0
+
+save=0
+
+;10000: 1 Puls = 0.0001m³ für >M Sektion
+factor=10000
+
+; -- BOOT --
+>B
+GasTotal=pc[1]/factor
+
+tmp=is(0 "Jan|Feb|Mär|Apr|Mai|Jun|Jul|Aug|Sep|Okt|Nov|Dez|")
+;Deaktiviere MQTT beim Start, verhindert das falsche Werte gesendet werden
+smlj=0
+
+;Anfangszählerstand
+=>sensor53 c1 0
+
+; -- SUBS --
+; Resette 24h Chart
+#rst24h
+for tmp 1 sday[-1] 1
+sday[tmp]=0
+next
+; Tagesverbrauch Tabelle
+#daysub
+if wm>0 {
+wcs <div id="day" style="text-align:center;width:600px;height:400px"></div>
+wcs <script language="JavaScript">function drawChart(){
+wcs var cssc={'headerRow':'hRow','rowNumberCell':'hCol','tableCell':'tCell'};
+wcs var data=google.visualization.arrayToDataTable([['Tag','Verbrauch [m³]',{role: 'style'}],
+for tmp 1 dcon[-1] 1
+	if (tmp==day) {
+		wcs [%tmp%,%dcon[tmp]%,'red'],
+	}
+	if (tmp<day) {
+		wcs [%tmp%,%dcon[tmp]%,'green'],
+	}
+	if (tmp>day) {
+		wcs [%tmp%,%dcon[tmp]%,''],
+	}
+next
+wcs ]);
+wcs var options={chartArea:{left:40,width:'86%%'},legend:'none',title:'Tagesverbräuche (Monat %is[month]%)',vAxis:{format:'# m³'},hAxis:{title:'Tag',ticks:[1,5,10,15,20,25,30]}};
+wcs var chart=new google.visualization.ColumnChart(document.getElementById('day'));
+wcs chart.draw(data,options);}google.charts.setOnLoadCallback(drawChart);</script>
+}
+
+; Netzverbrauch Monat Tabelle
+#monthsub
+if wm>0 {
+wcs <div id="month" style="text-align:center;width:600px;height:400px"></div>
+wcs <script language="JavaScript">function drawChart(){
+wcs var cssc={'headerRow':'hRow','rowNumberCell':'hCol','tableCell':'tCell'};
+wcs var data=google.visualization.arrayToDataTable([['Monat','Verbrauch [m³]',{role: 'style'}],
+for tmp 1 12 1
+	if (tmp<month) {
+		wcs ['%is[tmp]%',%mcon[tmp]%,'green'],
+	}
+	if (tmp==month) {
+		wcs ['%is[tmp]%',%mcon[tmp]%,'red'],
+	}
+	if (tmp>month) {
+		wcs ['%is[tmp]%',%mcon[tmp]%,'blue'],
+	}
+next
+wcs ]);
+wcs var options={chartArea:{left:40,width:'86%%'},legend:'none',title:'Verbräuche (Jahr %0(year-1)%/%0year%)',vAxis:{format:'# m³'}};
+wcs var chart=new google.visualization.ColumnChart(document.getElementById('month'));
+wcs chart.draw(data,options);}google.charts.setOnLoadCallback(drawChart);</script>
+
+}
+
+;-- SML --
+>M 1
+; Setupline
+;1=meter1, 21=GPIO21, c=Counter, 1=counter-with-pullup -50=debounce-time-ms and irq counter
++1,14,c,1,-500,Gas
+
+;1-0:1.8.0*255 for counter, %factor% = Faktor z.B. 10000 = 0.0001m³, 4 = Dezimalstellen
+1,1-0:1.8.0*255(@%factor%,Gesamtverbrauch,m³,total,4)
+
+#
+; -- JEDE SEKUNDE --
+>S
+;Daten sofort speichern Button
+if (save==1) {
+save=0
+svars
+print Daten wurden gespeichert
+}
+; Warte auf NTP
+if (year<2020) {
+print NTP not ready
+break
+}
+; Starte MQTT erst jetzt
+smlj=1
+
+; alle 30s
+if (upsecs%30==0) {
+GasTotal=pc[1]/factor
+s4h=GasTotal
+cstr2="cnth"+s(1.0((((hours+20)*120)+(mins*2)+(int(secs/30)))%2880+1))+"/120"
+}
+
+; alle 60s
+if (upsecs%60==0) {
+hour=hours
+yr=year
+;Zeit seit letztem Boot
+utm=s(2.0(int(uptime/1440)))+"d "+s(2.0(int(uptime/60)%24))+"h "+s(2.0(uptime%60))+"m"
+
+; kopiere Netzbezug [m3] vom Zaehler (aus SML Variable)
+GasTotal=sml[1]
+; Tagesverbrauch [m3]
+dcon[day]=GasTotal-dval
+; Monatsverbrauch [m3]
+mcon[month]=GasTotal-mval
+m5=int((((hours*60)+mins)/5)+1)
+sday[0]=m5
+if (chg[m5]>0) {
+sday[m5]=GasTotal
+}
+cstr="cnth"+s(1.0(((hours)*12)+int(mins/5))+1)+"/12"
+
+; Tagesverbrauch Berechnung um Mitternacht
+if ((chg[hour]>0) and (hour==0)) {
+if (day>1) {
+da=day
+} else {
+; Monatswechsel
+for tmp (da+1) 31 1
+dcon[tmp]=0
+next
+; monthly values
+mval=GasTotal
+}
+if (chg[yr]>0) {
+; Jahreswechsel
+yval=GasTotal
+}
+; daily values
+dval=GasTotal
+; nur 1x um Mitternacht speichern
+svars
+}
+}
+; WEB INTERFACE
+>W
+; web button
+bu(save "gespeichert!" "Daten sofort speichern")
+; Verbrauch
+Tagesverbrauch{m}%4(GasTotal-dval)% m³
+Monatsverbrauch{m}%2(GasTotal-mval)% m³
+Jahresverbrauch{m}%2(GasTotal-yval)% m³
+
+; Zeit
+Datum{m}%s(2.0day)%.%s(2.0month)%.%s(2.0year)% - %s(2.0hours)%:%s(2.0mins)%:%s(2.0secs)%
+Uptime{m}%utm%
+$<div style="margin-left:-20px">
+
+; 4h Leistung Diagramm
+$<div id="chart1" style="text-align:center;width:600px;height:400px"></div>
+$gc(lt s4h "wr" "Verbrauch [m³]" cstr2)
+$var options = {
+$chartArea:{left:60,width:'83%%'},
+$legend:'none',
+$vAxis:{format:'# m³'},
+$explorer:{actions:['dragToZoom', 'rightClickToReset']},
+$series: {0: {type: 'area'}},
+$title:'Verbrauch 4 Stunden [m³]'
+$};
+$gc(e)
+
+; 24h Leistung Diagramm
+$<div id="chart2" style="text-align:center;width:600px;height:400px"></div>
+$gc(lt sday "wr" "Verbrauch [m³]" cstr)
+$var options = {
+$chartArea:{left:60,width:'83%%'},
+$legend:'none',
+$vAxis:{format:'# m³'},
+$explorer:{actions:['dragToZoom', 'rightClickToReset']},
+$series: {0: {type: 'area'}},
+$title:'Verbrauch 24 Stunden [m³]'
+$};
+$gc(e)
+; Tagesverbrauch Tabelle
+%=#daysub
+
+; Netzverbrauch Monat Tabelle
+%=#monthsub
+
+$<center><span style="font-size:10px;">
+$Original by ottelo.jimdo.de - modified by waldy<br>
+$Hinweis: Die Daten (ohne 4h Chart) werden um Mitternacht gespeichert!<br>
+$Der Restart Button speichert ebenfalls die Daten.<br>
+$</span></center></div>
