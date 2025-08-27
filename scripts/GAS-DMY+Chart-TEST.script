@@ -1,6 +1,6 @@
 >D 40
 ;*****
-; Gaszähler - DMY + Charts
+; TEST + Gaszähler - DMY + Charts + TEST
 ;
 ; Chart Script by ottelo.jimdo.de - modified by waldy
 ;
@@ -234,3 +234,4 @@ $Original by ottelo.jimdo.de - modified by waldy<br>
 $Hinweis: Die Daten (ohne 4h Chart) werden um Mitternacht gespeichert!<br>
 $Der Restart Button speichert ebenfalls die Daten.<br>
 $</span></center></div>
+
