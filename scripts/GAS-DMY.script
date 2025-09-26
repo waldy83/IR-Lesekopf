@@ -10,6 +10,11 @@
 ; - Skript auswaehlen
 ; - Speichern anklicken
 ;*****
+; Faktor
+; 1 imp ≙ 0,01 m³  =>  100
+; 1 imp ≙ 0,1 m³   =>  10
+; 1 imp ≙ 1,0 m³   =>  1
+factor=100
 
 ; -- ARRAYS --
 ; Tagesnetzbezug Tabelle 1-31
@@ -46,7 +51,7 @@ smlj=0
 >M 1
 ; Setupline
 +1,14,c,1,-500,Gas
-1,1-0:1.8.0*255(@100,Gesamtverbrauch,m3,total,18)
+1,1-0:1.8.0*255(@%factor%,Gesamtverbrauch,m3,total,18)
 
 ; -- JEDE SEKUNDE --
 >S
@@ -118,3 +123,4 @@ Jahresverbrauch{m}%2(GasTotal-yval)% m3
 ; Zeit
 Datum{m}%s(2.0day)%.%s(2.0month)%.%s(2.0year)% - %s(2.0hours)%:%s(2.0mins)%:%s(2.0secs)%
 Uptime{m}%utm%
+
