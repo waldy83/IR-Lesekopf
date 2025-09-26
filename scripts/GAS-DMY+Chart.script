@@ -10,6 +10,11 @@
 ; - Skript auswaehlen
 ; - Speichern anklicken
 ;*****
+; Faktor
+; 1 imp ≙ 0,01 m³  =>  100
+; 1 imp ≙ 0,1 m³   =>  10
+; 1 imp ≙ 1,0 m³   =>  1
+factor=100
 
 ; -- ARRAYS --
 ; Tagesnetzbezug Tabelle 1-31
@@ -99,7 +104,7 @@ wcs chart.draw(data,options);}google.charts.setOnLoadCallback(drawChart);</scrip
 >M 1
 ; Setupline
 +1,14,c,1,-500,Gas
-1,1-0:1.8.0*255(@100,Gesamtverbrauch,m3,total,18)
+1,1-0:1.8.0*255(@%factor%,Gesamtverbrauch,m3,total,18)
 #
 
 ; -- JEDE SEKUNDE --
@@ -188,4 +193,5 @@ $<center><span style="font-size:10px;">
 $Original by ottelo.jimdo.de - modified by waldy<br>
 $Hinweis: Die Daten werden immer um Mitternacht gespeichert!<br>
 $Der Restart Button speichert ebenfalls die Daten.<br>
+
 $</span></center></div>
