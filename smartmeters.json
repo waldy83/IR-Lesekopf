@@ -54,6 +54,7 @@
 	    { "manufacturer": "Iskra", "label": "Iskra-MT-631", "filename": "Iskra-MT-631.script" },
 	    { "manufacturer": "Iskra", "label": "Iskra-MT-681", "filename": "Iskra-MT-681.script" },
 	    { "manufacturer": "Iskra", "label": "Iskra-MT-691", "filename": "Iskra-MT-691.script" },
+	    { "manufacturer": "Iskra", "label": "Iskra-MT-691+Chart", "filename": "Iskra-MT-691+Chart.script" },
 	    { "manufacturer": "Itron", "label": "Itron-V1.04", "filename": "Itron-V1.04.script" },
 	    { "manufacturer": "KAIFA", "label": "KAIFA-MB310H4BDE", "filename": "KAIFA-MB310H4BDE.script" },
 	    { "manufacturer": "KAIFA", "label": "KAIFA-MB310H4BDE+Chart", "filename": "KAIFA-MB310H4BDE+Chart.script" },
