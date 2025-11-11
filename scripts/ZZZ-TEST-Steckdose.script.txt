@@ -1,0 +1,74 @@
+>D 40
+; ***** PV-Überschusssteuerung mit SML-Zähler *****
+; Dieses Script liest den Stromzähler aus
+; und schaltet bei PV-Überschuss eine Tasmota-Steckdose (per IP).
+;*****
+; - Haken bei "Skript aktivieren" setzen
+; - Skript auswaehlen
+; - "Speichern" anklicken
+;*****
+; -------- VARIABLEN --------
+plugip="192.168.0.50"   ; IP-Adresse der WLAN-Steckdose
+swesp=0                 ; PV-Automatik an/aus
+swespflg=0              ; Statusflag für Steckdosenstatus
+power=0                 ; Momentanleistung (W)
+power2=0                ; Gefilterte Leistung
+p:btn=0                 ; Manuell schalten
+btnstate=2
+
+; -------- SML SETUP --------
+>M 1
++1,3,s,16,9600,DWZE12
+1,77070100010800ff@1000,Total Energy In,kWh,TotalIn,3
+1,77070100020800ff@1000,Total Energy Out,kWh,TotalOut,3
+1,77070100100700ff@1,Current Power,W,CurrPower,3
+1,77070100600100ff@#,Meter Id,,MeterId,0
+#
+
+; -------- EVERY 100ms --------
+>F
+if (btnstate!=btn)
+{
+  =>websend [%plugip%] power %btn%
+  print Manuell: power %btn% @%plugip%
+  btnstate=btn
+}
+
+; -------- EVERY SECOND --------
+>S
+if (secs%3==0)
+{
+  ; Momentanleistung auslesen
+  power=sml[3]           ; CurrPower (Index 3 aus obiger Liste)
+  ; Filterung zur Glättung
+  power2=(0.9*power2)+((1-0.9)*power)
+
+  if (swesp==1)
+  {
+    ; PV-Überschuss erkannt (negative Leistung)
+    if ((power2<-300) and (swespflg==0))
+    {
+      =>websend [%plugip%] power ON
+      print PV Überschuss erkannt → Steckdose EIN (%power2%W)
+      swespflg=1
+      btn=1
+    }
+    ; Netzbezug erkannt (positive Leistung)
+    if ((power>100) and (swespflg==1))
+    {
+      =>websend [%plugip%] power OFF
+      print Netzbezug erkannt → Steckdose AUS (%power2%W)
+      swespflg=0
+      btn=0
+    }
+  }
+}
+
+; -------- WEB INTERFACE --------
+>W
+; Web-Schalter für Automatik
+bu(swesp "PV Steckdose aktivieren" "PV Steckdose deaktivieren")
+; Manueller Schalter
+bu(btn "Steckdose manuell ausschalten" "Steckdose manuell einschalten")
+; Anzeige der aktuell hinterlegten IP-Adresse
+ti(plugip "Steckdosen-IP-Adresse")
