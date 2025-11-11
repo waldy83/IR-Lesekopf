@@ -87,6 +87,7 @@
 	    { "manufacturer": "Test", "label": "ZZZ-TEST-2", "filename": "ZZZ-TEST-2.script" },
 	    { "manufacturer": "Test", "label": "ZZZ-TEST-3", "filename": "ZZZ-TEST-3.script" },
 	    { "manufacturer": "Test", "label": "ZZZ-TEST-4", "filename": "ZZZ-TEST-4.script" },
-	    { "manufacturer": "Test", "label": "ZZZ-TEST-5", "filename": "ZZZ-TEST-5.script" }
+	    { "manufacturer": "Test", "label": "ZZZ-TEST-5", "filename": "ZZZ-TEST-5.script" },
+		{ "manufacturer": "Test", "label": "ZZZ-TEST-Steckdose", "filename": "ZZZ-TEST-Steckdose.script" }
     ]
 }
