@@ -78,6 +78,7 @@
 	    { "manufacturer": "Siemens", "label": "Siemens-IM-350", "filename": "Siemens-IM-350.script" },
 	    { "manufacturer": "Siemens", "label": "Siemens-TD-3511", "filename": "Siemens-TD-3511.script" },
 		{ "manufacturer": "Wasser", "label": "Wasser", "filename": "Wasser.script" },
+		{ "manufacturer": "Wasser", "label": "Wasser-Tag-Monat-Jahr", "filename": "Wasser-DMY.script" },
 		{ "manufacturer": "Wasser", "label": "Wasser-Tag-Monat-Jahr+Chart", "filename": "Wasser-DMY+Chart.script" },
 	    { "manufacturer": "ZPA", "label": "ZPA-GH302", "filename": "ZPA-GH302.script" },
 	    { "manufacturer": "ZPA", "label": "ZPA-GH305", "filename": "ZPA-GH305.script" },
