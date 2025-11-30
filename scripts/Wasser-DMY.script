@@ -1,0 +1,138 @@
+>D 40
+;*****
+; Wasserzähler - DMY
+;
+; Script by ottelo.jimdo.de - modified by waldy
+;*****
+
+; - Haken bei "Skript aktivieren" setzen
+; - Skript auswaehlen
+; - Speichern anklicken
+;*****
+;========================
+;   IMPULSE → m³ Faktor
+;========================
+; Beispiele:
+; 1 Impuls = 1 Liter  →  0,001 m³  → factor = 1000
+; 1 Impuls = 10 Liter →  0,01 m³   → factor = 100
+; 1 Impuls = 100 Liter → 0,1 m³    → factor = 10
+
+factor=100     ; <<< Bitte ggf. anpassen!
+
+; -- ARRAYS --
+; Tagesverbrauch (1–31)
+M:p:dcon=0 31
+; Monatsverbrauch (1–12)
+M:p:mcon=0 12
+
+; -- VARS --
+; Gesamtverbrauch Wasser [m³]
+WaterTotal=0
+
+; Tages, Monats, Jahres Verbrauch
+p:mval=0
+p:dval=0
+p:yval=0
+
+tmp=0
+utm="00d 00h 00m"
+hour=0
+yr=0
+da=1
+save=0
+
+
+;========================
+;        BOOT
+;========================
+>B
+=>sensor53 r
+smlj=0
+
+; Anfangszählerstand (bei Bedarf anpassen)
+=>sensor53 c1 47110815
+
+
+;========================
+;       SML PARSER
+;========================
+>M 1
++1,14,c,1,-500,Wasser
+1,1-0:1.8.0*255(@%factor%,Gesamtverbrauch,m3,total,18)
+
+
+;========================
+;        JEDE SEKUNDE
+;========================
+>S
+
+if (save==1) {
+  save=0
+  svars
+  print Daten wurden gespeichert
+}
+
+; MQTT erst aktivieren wenn Daten vorhanden
+if (sml[1]>0) {
+  smlj=1
+}
+
+; warte auf NTP
+if (year<2020) {
+  print NTP not ready
+  break
+}
+
+;----- alle 60 Sekunden -----
+if (upsecs%60==0) {
+
+  hour=hours
+  yr=year
+
+  utm=s(2.0(int(uptime/1440)))+"d "+s(2.0(int(uptime/60)%24))+"h "+s(2.0(uptime%60))+"m"
+
+  ; Wasser Gesamtverbrauch
+  WaterTotal=sml[1]
+
+  ; Tagesverbrauch
+  dcon[day]=WaterTotal-dval
+
+  ; Monatsverbrauch
+  mcon[month]=WaterTotal-mval
+
+
+  ;--------- Mitternacht ----------
+  if ((chg[hour]>0) and (hour==0)) {
+
+    if (day>1) {
+      da=day
+    } else {
+      ; Monatswechsel
+      for tmp (da+1) 31 1
+        dcon[tmp]=0
+      next
+      mval=WaterTotal
+    }
+
+    if (chg[yr]>0) {
+      yval=WaterTotal
+    }
+
+    dval=WaterTotal
+    svars
+  }
+}
+
+;========================
+;       WEB INTERFACE
+;========================
+>W
+
+bu(save "gespeichert!" "Daten sofort speichern")
+
+Tagesverbrauch{m}%2(WaterTotal-dval)% m3
+Monatsverbrauch{m}%2(WaterTotal-mval)% m3
+Jahresverbrauch{m}%2(WaterTotal-yval)% m3
+
+Datum{m}%s(2.0day)%.%s(2.0month)%.%s(2.0year)% - %s(2.0hours)%:%s(2.0mins)%:%s(2.0secs)%
+Uptime{m}%utm%
