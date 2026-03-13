@@ -1,6 +1,6 @@
 >D 48
 factor=100
-zaehler_start=1
+zaehler_start=0
 res=0
 save=0
 tmp=0
@@ -23,35 +23,34 @@ avgv=0
 avgv2=0
 avgvc2=0
 last_gas=0
+
 >B
 =>sensor53 r
 is(0 "Jan|Feb|Mär|Apr|Mai|Jun|Jul|Aug|Sep|Okt|Nov|Dez|")
 =>sensor53 c1 %zaehler_start%
+
 #daysub
-if wm>0 {
-wcs <div id="day" style="width:400px"></div><script>function drawChart(){
-wcs var data=google.visualization.arrayToDataTable([['Tag','m3',{role:'style'}],
+wcs <div id="day" style="width:400px;height:200px"></div>
+wcs <script>function drawD(){var data=google.visualization.arrayToDataTable([['Tag','m3',{role:'style'}],
 for tmp 1 dcon[-1] 1
 wcs [%tmp%,%dcon[tmp]%,'%(((tmp==day))?"red":"green")%'],
 next
-wcs ]);var options={chartArea:{left:40,width:'85%'},legend:'none',title:'Tag',vAxis:{format:'# m3'}};
-wcs var chart=new google.visualization.ColumnChart(document.getElementById('day'));
-wcs chart.draw(data,options);}google.charts.setOnLoadCallback(drawChart);</script>
-}
+wcs ]);new google.visualization.ColumnChart(document.getElementById('day')).draw(data,{title:'Tag',legend:'none',vAxis:{format:'# m3'}});}
+wcs google.charts.setOnLoadCallback(drawD);</script>
+
 #monthsub
-if wm>0 {
-wcs <div id="month" style="width:400px"></div><script>function drawChart2(){
-wcs var data=google.visualization.arrayToDataTable([['Mo','m3',{role:'style'}],
+wcs <div id="month" style="width:400px;height:200px"></div>
+wcs <script>function drawM(){var data=google.visualization.arrayToDataTable([['Mo','m3',{role:'style'}],
 for tmp 1 12 1
 wcs ['%is[tmp]%',%mcon[tmp]%,'%(((tmp==month))?"red":"green")%'],
 next
-wcs ]);var options={chartArea:{left:40,width:'85%'},legend:'none',title:'Monat',vAxis:{format:'# m3'}};
-wcs var chart=new google.visualization.ColumnChart(document.getElementById('month'));
-wcs chart.draw(data,options);}google.charts.setOnLoadCallback(drawChart2);</script>
-}
+wcs ]);new google.visualization.ColumnChart(document.getElementById('month')).draw(data,{title:'Monat',legend:'none',vAxis:{format:'# m3'}});}
+wcs google.charts.setOnLoadCallback(drawM);</script>
+
 >M 1
 +1,14,c,1,-500,Gas
 1,1-0:1.8.0*255(@%factor%,Gesamtverbrauch,m3,total,2)
+
 >S
 if (res==1) {
 res=0
@@ -75,10 +74,12 @@ sday[tmp]=0
 next
 svars
 }
+
 if (save==1) {
 save=0
 svars
 }
+
 if (year>2020) {
 if (upsecs%30==0) {
 tmp=sml[1]-last_gas
@@ -103,8 +104,8 @@ sday[m5]=avgv2
 avgv2=0
 avgvc2=0
 }
-cstr="cnth"+s(1.0(((hours)*12)+int(mins/5))+1)+1
-if (chg[hour]>0) and (hour==0) {
+cstr="cnth"+s(1.0(((hours)*12)+int(mins/5))+1)+"/12"
+if ((chg[hour]>0) and (hour==0)) {
 if (day>1) {
 da=day
 } else {
@@ -113,7 +114,7 @@ dcon[tmp]=0
 next
 mval=GasTotal
 }
-if (day==1) and (month==1) {
+if (day==1 and month==1) {
 yval=GasTotal
 }
 dval=GasTotal
@@ -121,6 +122,7 @@ svars
 }
 }
 }
+
 >W
 bu(save "Save" "Speichern")
 bu(res "Reset" "Reset")
@@ -130,15 +132,15 @@ J-Verbr: %2(GasTotal-yval)% m3
 Datum: %s(2.0day)%.%s(2.0month)%.%s(2.0year)% %s(2.0hours)%:%s(2.0mins)%
 Uptime: %utm%
 $<div style="margin-left:-20px">
-$<script src="https://www.gstatic.com/charts/loader.js"></script>
-$<script>google.charts.load('current',{packages:['corechart']});</script>
-$<div id="chart1" style="width:400px"></div>
+$<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+$<script type="text/javascript">google.charts.load('current',{packages:['corechart']});</script>
+$<div id="chart1" style="width:400px;height:200px"></div>
 $gc(lt s4h "wr" "m3" cstr2)
-$var options={chartArea:{left:60,width:'83%'},legend:'none',vAxis:{format:'# m3'},series:{0:{type:'area'}},title:'4h'};
+$var options={title:'4h',legend:'none',vAxis:{format:'# m3'},series:{0:{type:'area'}}};
 $gc(e)
-$<div id="chart2" style="width:400px"></div>
+$<div id="chart2" style="width:400px;height:200px"></div>
 $gc(lt sday "wr" "m3" cstr)
-$var options={chartArea:{left:60,width:'83%'},legend:'none',vAxis:{format:'# m3'},series:{0:{type:'area'}},title:'24h'};
+$var options={title:'24h',legend:'none',vAxis:{format:'# m3'},series:{0:{type:'area'}}};
 $gc(e)
 %=#daysub
 %=#monthsub
