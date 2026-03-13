@@ -2,7 +2,7 @@
 ;============================================================
 ; GASZÄHLER-SCRIPT (Historie + Charts + 4h/24h Power-Chart)
 ;============================================================
-; Basis-Script: ottelo.jimdo.de  |  Modifiziert: waldy
+; Basis-Script: ottelo.jimdo.de  |  Modifiziert: waldy & Gemini
 ;============================================================
 
 ; --- EINSTELLUNGEN ---
@@ -26,7 +26,7 @@ p:mval=0
 p:dval=0
 p:yval=0
 
-; NEU: Variablen für 4h und 24h Charts
+; Variablen für 4h und 24h Charts
 M:p:sday=0 288
 M:s4h=0 480
 m5=0
@@ -95,18 +95,38 @@ wcs chart.draw(data,options);}google.charts.setOnLoadCallback(drawChart);</scrip
 1,1-0:1.8.0*255(@%factor%,Gesamtverbrauch,m3,total,2)
 
 >S
+; --- RESET LOGIK ---
 if (res==1) {
   res=0
   dval=GasTotal
   mval=GasTotal
   yval=GasTotal
+  avgv=0
+  avgv2=0
+  avgvc=0
+  avgvc2=0
+  last_gas=GasTotal
+  
+  ; Tages- und Monatswerte (Balkendiagramm) nullen
   for tmp 1 31 1
     dcon[tmp]=0
   next
   for tmp 1 12 1
     mcon[tmp]=0
   next
+  
+  ; 4h Chart Array (s4h) komplett nullen
+  for tmp 0 480 1
+    s4h[tmp]=0
+  next
+  
+  ; 24h Chart Array (sday) komplett nullen
+  for tmp 0 288 1
+    sday[tmp]=0
+  next
+  
   svars
+  print Alle Verbrauchswerte und Diagramme wurden zurückgesetzt
 }
 
 if (save==1) {
@@ -118,18 +138,15 @@ if (year<2020) {
   break
 }
 
-; Berechnung der "Leistung" (Verbrauchsdifferenz) für die Charts
+; Berechnung der Verbrauchs-Impulse für die Charts
 if (upsecs%30==0) {
-  ; Differenz zum letzten Stand berechnen
   tmp=sml[1]-last_gas
   last_gas=sml[1]
   
-  ; Da Gas Impulse diskret sind, mitteln wir hier für die Anzeige
   avgv=tmp
   avgv2+=tmp
   avgvc2+=1
   
-  ; 4h Chart Datenpunkt (alle 30 Sek)
   s4h=avgv
   cstr2="cnth"+s(1.0((((hours+20)*120)+(mins*2)+(int(secs/30)))%2880+1))+"/120"
 }
@@ -142,7 +159,6 @@ if (upsecs%60==0) {
   dcon[day]=GasTotal-dval
   mcon[month]=GasTotal-mval
   
-  ; 24h Chart Datenpunkt (alle 5 Min)
   m5=int((((hours*60)+mins)/5)+1)
   sday[0]=m5
   if (chg[m5]>0) {
