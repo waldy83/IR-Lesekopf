@@ -1,15 +1,6 @@
->D 40
-;============================================================
-; GASZÄHLER-SCRIPT (Historie + Charts + 4h/24h Power-Chart)
-;============================================================
-; Basis-Script: ottelo.jimdo.de  |  Modifiziert: waldy & Gemini
-;============================================================
-
-; --- EINSTELLUNGEN ---
+>D 48
 factor=100
 zaehler_start=0
-
-; --- INTERNE VARIABLEN ---
 res=0
 save=0
 tmp=0
@@ -18,15 +9,11 @@ yr=0
 da=1
 GasTotal=0
 utm="00d 00h 00m"
-
-; Historie-Speicher
 M:p:dcon=0 31
 M:p:mcon=0 12
 p:mval=0
 p:dval=0
 p:yval=0
-
-; Variablen für 4h und 24h Charts
 M:p:sday=0 288
 M:s4h=0 480
 m5=0
@@ -34,199 +21,134 @@ cstr="cnt0/12"
 cstr2="cnth0/120"
 avgv=0
 avgv2=0
-avgvc=0
 avgvc2=0
 last_gas=0
-
 >B
 =>sensor53 r
 is(0 "Jan|Feb|Mär|Apr|Mai|Jun|Jul|Aug|Sep|Okt|Nov|Dez|")
-smlj=0
 =>sensor53 c1 %zaehler_start%
-
 #daysub
 if wm>0 {
 wcs <div id="day" style="text-align:center;width:400px"></div>
 wcs <script language="JavaScript">function drawChart(){
-wcs var cssc={'headerRow':'hRow','rowNumberCell':'hCol','tableCell':'tCell'};
-wcs var data=google.visualization.arrayToDataTable([['Tag','Energie [m3]',{role: 'style'}],
+wcs var data=google.visualization.arrayToDataTable([['Tag','m3',{role:'style'}],
 for tmp 1 dcon[-1] 1
-if (tmp==day) {
-wcs [%tmp%,%dcon[tmp]%,'red'],
-}
-if (tmp<day) {
-wcs [%tmp%,%dcon[tmp]%,'green'],
-}
-if (tmp>day) {
-wcs [%tmp%,%dcon[tmp]%,''],
-}
+if(tmp==day){wcs [%tmp%,%dcon[tmp]%,'red'],}
+if(tmp<day){wcs [%tmp%,%dcon[tmp]%,'green'],}
+if(tmp>day){wcs [%tmp%,%dcon[tmp]%,''],}
 next
 wcs ]);
-wcs var options={chartArea:{left:40,width:'86%%'},legend:'none',title:'Tagesverbräuche (Monat %is[month]%)',vAxis:{format:'# m3'},hAxis:{title:'Tag',ticks:[1,5,10,15,20,25,30]}};
+wcs var options={chartArea:{left:40,width:'86%%'},legend:'none',title:'Tag (Monat %is[month]%)',vAxis:{format:'# m3'},hAxis:{ticks:[1,5,10,15,20,25,30]}};
 wcs var chart=new google.visualization.ColumnChart(document.getElementById('day'));
 wcs chart.draw(data,options);}google.charts.setOnLoadCallback(drawChart);</script>
 }
-
 #monthsub
 if wm>0 {
 wcs <div id="month" style="text-align:center;width:400px"></div>
 wcs <script language="JavaScript">function drawChart(){
-wcs var cssc={'headerRow':'hRow','rowNumberCell':'hCol','tableCell':'tCell'};
-wcs var data=google.visualization.arrayToDataTable([['Monat','Verbrauch [m3]',{role: 'style'}],
+wcs var data=google.visualization.arrayToDataTable([['Monat','m3',{role:'style'}],
 for tmp 1 12 1
-if (tmp<month) {
-wcs ['%is[tmp]%',%mcon[tmp]%,'green'],
-}
-if (tmp==month) {
-wcs ['%is[tmp]%',%mcon[tmp]%,'red'],
-}
-if (tmp>month) {
-wcs ['%is[tmp]%',%mcon[tmp]%,'blue'],
-}
+if(tmp<month){wcs ['%is[tmp]%',%mcon[tmp]%,'green'],}
+if(tmp==month){wcs ['%is[tmp]%',%mcon[tmp]%,'red'],}
+if(tmp>month){wcs ['%is[tmp]%',%mcon[tmp]%,'blue'],}
 next
 wcs ]);
-wcs var options={chartArea:{left:40,width:'86%%'},legend:'none',title:'Verbräuche (Jahr %0(year-1)%/%0year%)',vAxis:{format:'# m3'}};
+wcs var options={chartArea:{left:40,width:'86%%'},legend:'none',title:'Jahr (%0year%)',vAxis:{format:'# m3'}};
 wcs var chart=new google.visualization.ColumnChart(document.getElementById('month'));
 wcs chart.draw(data,options);}google.charts.setOnLoadCallback(drawChart);</script>
 }
-
 >M 1
 +1,14,c,1,-500,Gas
 1,1-0:1.8.0*255(@%factor%,Gesamtverbrauch,m3,total,2)
-
 >S
-; --- RESET LOGIK ---
 if (res==1) {
-  res=0
-  dval=GasTotal
-  mval=GasTotal
-  yval=GasTotal
-  avgv=0
-  avgv2=0
-  avgvc=0
-  avgvc2=0
-  last_gas=GasTotal
-  
-  ; Tages- und Monatswerte (Balkendiagramm) nullen
-  for tmp 1 31 1
-    dcon[tmp]=0
-  next
-  for tmp 1 12 1
-    mcon[tmp]=0
-  next
-  
-  ; 4h Chart Array (s4h) komplett nullen
-  for tmp 0 480 1
-    s4h[tmp]=0
-  next
-  
-  ; 24h Chart Array (sday) komplett nullen
-  for tmp 0 288 1
-    sday[tmp]=0
-  next
-  
-  svars
-  print Alle Verbrauchswerte und Diagramme wurden zurückgesetzt
+res=0
+dval=GasTotal
+mval=GasTotal
+yval=GasTotal
+avgv2=0
+avgvc2=0
+last_gas=GasTotal
+for tmp 1 31 1
+dcon[tmp]=0
+next
+for tmp 1 12 1
+mcon[tmp]=0
+next
+for tmp 0 480 1
+s4h[tmp]=0
+next
+for tmp 0 288 1
+sday[tmp]=0
+next
+svars
+print Reset durchgeführt
 }
-
 if (save==1) {
-  save=0
-  svars
+save=0
+svars
 }
-
-if (year<2020) {
-  break
-}
-
-; Berechnung der Verbrauchs-Impulse für die Charts
+if (year>2020) {
 if (upsecs%30==0) {
-  tmp=sml[1]-last_gas
-  last_gas=sml[1]
-  
-  avgv=tmp
-  avgv2+=tmp
-  avgvc2+=1
-  
-  s4h=avgv
-  cstr2="cnth"+s(1.0((((hours+20)*120)+(mins*2)+(int(secs/30)))%2880+1))+"/120"
+tmp=sml[1]-last_gas
+last_gas=sml[1]
+avgv=tmp
+avgv2+=tmp
+avgvc2+=1
+s4h=avgv
+cstr2="cnth"+s(1.0((((hours+20)*120)+(mins*2)+(int(secs/30)))%2880+1))+"/120"
 }
-
 if (upsecs%60==0) {
-  hour=hours
-  yr=year
-  utm=s(2.0(int(uptime/1440)))+"d "+s(2.0(int(uptime/60)%24))+"h "+s(2.0(uptime%60))+"m"
-  GasTotal=sml[1]
-  dcon[day]=GasTotal-dval
-  mcon[month]=GasTotal-mval
-  
-  m5=int((((hours*60)+mins)/5)+1)
-  sday[0]=m5
-  if (chg[m5]>0) {
-    sday[m5]=avgv2
-    avgv2=0
-    avgvc2=0
-  }
-  cstr="cnth"+s(1.0(((hours)*12)+int(mins/5))+1)+"/12"
-
-  if ((chg[hour]>0) and (hour==0)) {
-    if (day>1) {
-      da=day
-    } else {
-      for tmp (da+1) 31 1
-        dcon[tmp]=0
-      next
-      mval=GasTotal
-    }
-    if (day==1 and month==1) {
-      yval=GasTotal
-    }
-    dval=GasTotal
-    svars
-  }
+hour=hours
+yr=year
+utm=s(2.0(int(uptime/1440)))+"d "+s(2.0(int(uptime/60)%24))+"h "+s(2.0(uptime%60))+"m"
+GasTotal=sml[1]
+dcon[day]=GasTotal-dval
+mcon[month]=GasTotal-mval
+m5=int((((hours*60)+mins)/5)+1)
+sday[0]=m5
+if (chg[m5]>0) {
+sday[m5]=avgv2
+avgv2=0
+avgvc2=0
 }
-
+cstr="cnth"+s(1.0(((hours)*12)+int(mins/5))+1)+1
+if ((chg[hour]>0) and (hour==0)) {
+if (day>1) {
+da=day
+} else {
+for tmp (da+1) 31 1
+dcon[tmp]=0
+next
+mval=GasTotal
+}
+if (day==1 and month==1) {
+yval=GasTotal
+}
+dval=GasTotal
+svars
+}
+}
+}
 >W
 bu(save "Gespeichert" "Daten speichern")
 bu(res "Reset läuft..." "Verbrauch zurücksetzen")
-
 Tagesverbrauch: {m} %2(GasTotal-dval)% m3
 Monatsverbrauch: {m} %2(GasTotal-mval)% m3
 Jahresverbrauch: {m} %2(GasTotal-yval)% m3
-
-Datum: {m} %s(2.0day)%.%s(2.0month)%.%s(2.0year)% - %s(2.0hours)%:%s(2.0mins)%:%s(2.0secs)%
+Datum: {m} %s(2.0day)%.%s(2.0month)%.%s(2.0year)% - %s(2.0hours)%:%s(2.0mins)%
 Uptime: {m} %utm%
-
 $<div style="margin-left:-20px">
 $<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
 $<script type="text/javascript">google.charts.load('current',{packages:['corechart']});</script>
-
 $<div id="chart1" style="text-align:center;width:400px"></div>
-$gc(lt s4h "wr" "Verbrauch [m3]" cstr2)
-$var options = {
-$chartArea:{left:60,width:'83%%'},
-$legend:'none',
-$vAxis:{format:'# m3'},
-$explorer:{actions:['dragToZoom', 'rightClickToReset']},
-$series: {0: {type: 'area'}},
-$title:'Gasverbrauch 4 Stunden [m3]'
-$};
+$gc(lt s4h "wr" "m3" cstr2)
+$var options = {chartArea:{left:60,width:'83%%'},legend:'none',vAxis:{format:'# m3'},series:{0:{type:'area'}},title:'Verbrauch 4h'};
 $gc(e)
-
 $<div id="chart2" style="text-align:center;width:400px"></div>
-$gc(lt sday "wr" "Verbrauch [m3]" cstr)
-$var options = {
-$chartArea:{left:60,width:'83%%'},
-$legend:'none',
-$vAxis:{format:'# m3'},
-$explorer:{actions:['dragToZoom', 'rightClickToReset']},
-$series: {0: {type: 'area'}},
-$title:'Gasverbrauch 24 Stunden [m3]'
-$};
+$gc(lt sday "wr" "m3" cstr)
+$var options = {chartArea:{left:60,width:'83%%'},legend:'none',vAxis:{format:'# m3'},series:{0:{type:'area'}},title:'Verbrauch 24h'};
 $gc(e)
-
 %=#daysub
 %=#monthsub
-$<center><span style="font-size:10px;">
-$Original by ottelo.jimdo.de - modified by waldy<br>
-$Hinweis: Die Daten werden immer um Mitternacht gespeichert!<br>
-$</span></center></div>
+$<center><span style="font-size:10px;">Daten-Reset inkl. Charts möglich</span></center></div>
