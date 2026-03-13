@@ -1,6 +1,6 @@
 >D 48
 factor=100
-zaehler_start=0
+zaehler_start=2
 res=0
 save=0
 tmp=0
@@ -27,25 +27,52 @@ last_gas=0
 >B
 =>sensor53 r
 is(0 "Jan|Feb|Mär|Apr|Mai|Jun|Jul|Aug|Sep|Okt|Nov|Dez|")
+smlj=0
 =>sensor53 c1 %zaehler_start%
 
 #daysub
-wcs <div id="day" style="width:400px;height:200px"></div>
-wcs <script>function drawD(){var data=google.visualization.arrayToDataTable([['Tag','m3',{role:'style'}],
+if wm>0 {
+wcs <div id="day" style="text-align:center;width:400px"></div>
+wcs <script language="JavaScript">function drawChart(){
+wcs var data=google.visualization.arrayToDataTable([['Tag','Energie [m3]',{role: 'style'}],
 for tmp 1 dcon[-1] 1
-wcs [%tmp%,%dcon[tmp]%,'%(((tmp==day))?"red":"green")%'],
+if (tmp==day) {
+wcs [%tmp%,%dcon[tmp]%,'red'],
+}
+if (tmp<day) {
+wcs [%tmp%,%dcon[tmp]%,'green'],
+}
+if (tmp>day) {
+wcs [%tmp%,%dcon[tmp]%,''],
+}
 next
-wcs ]);new google.visualization.ColumnChart(document.getElementById('day')).draw(data,{title:'Tag',legend:'none',vAxis:{format:'# m3'}});}
-wcs google.charts.setOnLoadCallback(drawD);</script>
+wcs ]);
+wcs var options={chartArea:{left:40,width:'86%%'},legend:'none',title:'Tagesverbräuche (Monat %is[month]%)',vAxis:{format:'# m3'},hAxis:{title:'Tag',ticks:[1,5,10,15,20,25,30]}};
+wcs var chart=new google.visualization.ColumnChart(document.getElementById('day'));
+wcs chart.draw(data,options);}google.charts.setOnLoadCallback(drawChart);</script>
+}
 
 #monthsub
-wcs <div id="month" style="width:400px;height:200px"></div>
-wcs <script>function drawM(){var data=google.visualization.arrayToDataTable([['Mo','m3',{role:'style'}],
+if wm>0 {
+wcs <div id="month" style="text-align:center;width:400px"></div>
+wcs <script language="JavaScript">function drawChartM(){
+wcs var data=google.visualization.arrayToDataTable([['Monat','Verbrauch [m3]',{role: 'style'}],
 for tmp 1 12 1
-wcs ['%is[tmp]%',%mcon[tmp]%,'%(((tmp==month))?"red":"green")%'],
+if (tmp<month) {
+wcs ['%is[tmp]%',%mcon[tmp]%,'green'],
+}
+if (tmp==month) {
+wcs ['%is[tmp]%',%mcon[tmp]%,'red'],
+}
+if (tmp>month) {
+wcs ['%is[tmp]%',%mcon[tmp]%,'blue'],
+}
 next
-wcs ]);new google.visualization.ColumnChart(document.getElementById('month')).draw(data,{title:'Monat',legend:'none',vAxis:{format:'# m3'}});}
-wcs google.charts.setOnLoadCallback(drawM);</script>
+wcs ]);
+wcs var options={chartArea:{left:40,width:'86%%'},legend:'none',title:'Verbräuche (Jahr %0(year-1)%/%0year%)',vAxis:{format:'# m3'}};
+wcs var chart=new google.visualization.ColumnChart(document.getElementById('month'));
+wcs chart.draw(data,options);}google.charts.setOnLoadCallback(drawChartM);</script>
+}
 
 >M 1
 +1,14,c,1,-500,Gas
@@ -57,9 +84,9 @@ res=0
 dval=GasTotal
 mval=GasTotal
 yval=GasTotal
+last_gas=GasTotal
 avgv2=0
 avgvc2=0
-last_gas=GasTotal
 for tmp 1 31 1
 dcon[tmp]=0
 next
@@ -73,6 +100,7 @@ for tmp 0 288 1
 sday[tmp]=0
 next
 svars
+print Reset ok
 }
 
 if (save==1) {
@@ -124,24 +152,30 @@ svars
 }
 
 >W
-bu(save "Save" "Speichern")
-bu(res "Reset" "Reset")
-T-Verbr: %2(GasTotal-dval)% m3
-M-Verbr: %2(GasTotal-mval)% m3
-J-Verbr: %2(GasTotal-yval)% m3
-Datum: %s(2.0day)%.%s(2.0month)%.%s(2.0year)% %s(2.0hours)%:%s(2.0mins)%
-Uptime: %utm%
+bu(save "Gespeichert" "Daten speichern")
+bu(res "Reset läuft..." "Verbrauch zurücksetzen")
+
+Tagesverbrauch: {m} %2(GasTotal-dval)% m3
+Monatsverbrauch: {m} %2(GasTotal-mval)% m3
+Jahresverbrauch: {m} %2(GasTotal-yval)% m3
+
+Datum: {m} %s(2.0day)%.%s(2.0month)%.%s(2.0year)% - %s(2.0hours)%:%s(2.0mins)%
+Uptime: {m} %utm%
+
 $<div style="margin-left:-20px">
 $<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
 $<script type="text/javascript">google.charts.load('current',{packages:['corechart']});</script>
-$<div id="chart1" style="width:400px;height:200px"></div>
+
+$<div id="chart1" style="text-align:center;width:400px"></div>
 $gc(lt s4h "wr" "m3" cstr2)
-$var options={title:'4h',legend:'none',vAxis:{format:'# m3'},series:{0:{type:'area'}}};
+$var options = {chartArea:{left:60,width:'83%%'},legend:'none',vAxis:{format:'# m3'},series: {0: {type: 'area'}},title:'Verbrauch 4h'};
 $gc(e)
-$<div id="chart2" style="width:400px;height:200px"></div>
+
+$<div id="chart2" style="text-align:center;width:400px"></div>
 $gc(lt sday "wr" "m3" cstr)
-$var options={title:'24h',legend:'none',vAxis:{format:'# m3'},series:{0:{type:'area'}}};
+$var options = {chartArea:{left:60,width:'83%%'},legend:'none',vAxis:{format:'# m3'},series: {0: {type: 'area'}},title:'Verbrauch 24h'};
 $gc(e)
+
 %=#daysub
 %=#monthsub
 </div>
