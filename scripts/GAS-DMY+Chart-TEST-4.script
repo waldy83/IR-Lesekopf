@@ -14,7 +14,6 @@ M:p:mcon=0 12
 p:mval=0
 p:dval=0
 p:yval=0
-; g30 Speicher fuer die 30-Min-Balken (24h Abdeckung)
 M:p:g30=0 48
 m30=0
 avg_g=0
@@ -39,7 +38,7 @@ wcs ['',%g30[tmp]%],
 }
 next
 wcs ]);
-wcs var options={chartArea:{left:40,width:'86%%'},legend:'none',title:'Gasverbrauch alle 30 Min (24h)',vAxis:{format:'#0.00 m3'}};
+wcs var options={chartArea:{left:40,width:'86%%'},legend:'none',title:'Gasverbrauch alle 30 Min (24h)',vAxis:{format:'#0.000 m3'}};
 wcs var chart=new google.visualization.ColumnChart(document.getElementById('chart30'));
 wcs chart.draw(data,options);}google.charts.setOnLoadCallback(draw30);</script>
 }
@@ -49,19 +48,11 @@ if wm>0 {
 wcs <div id="day" style="text-align:center;width:400px"></div>
 wcs <script language="JavaScript">function drawChart(){
 wcs var data=google.visualization.arrayToDataTable([['Tag','m3',{role: 'style'}],
-for tmp 1 dcon[-1] 1
-if (tmp==day) {
-wcs [%tmp%,%dcon[tmp]%,'red'],
-}
-if (tmp<day) {
-wcs [%tmp%,%dcon[tmp]%,'green'],
-}
-if (tmp>day) {
-wcs [%tmp%,%dcon[tmp]%,''],
-}
+for tmp 1 31 1
+wcs [%tmp%,%dcon[tmp]%,'%(((tmp==day))?"red":"green")%'],
 next
 wcs ]);
-wcs var options={chartArea:{left:40,width:'86%%'},legend:'none',title:'Tagesverbräuche (Monat %is[month]%)',vAxis:{format:'# m3'}};
+wcs var options={chartArea:{left:40,width:'86%%'},legend:'none',title:'Tagesverbräuche (Monat %is[month]%)',vAxis:{format:'#0.00 m3'}};
 wcs new google.visualization.ColumnChart(document.getElementById('day')).draw(data,options);}google.charts.setOnLoadCallback(drawChart);</script>
 }
 
@@ -71,18 +62,10 @@ wcs <div id="month" style="text-align:center;width:400px"></div>
 wcs <script language="JavaScript">function drawChartM(){
 wcs var data=google.visualization.arrayToDataTable([['Monat','m3',{role: 'style'}],
 for tmp 1 12 1
-if (tmp<month) {
-wcs ['%is[tmp]%',%mcon[tmp]%,'green'],
-}
-if (tmp==month) {
-wcs ['%is[tmp]%',%mcon[tmp]%,'red'],
-}
-if (tmp>month) {
-wcs ['%is[tmp]%',%mcon[tmp]%,'blue'],
-}
+wcs ['%is[tmp]%',%mcon[tmp]%,'%(((tmp==month))?"red":"green")%'],
 next
 wcs ]);
-wcs var options={chartArea:{left:40,width:'86%%'},legend:'none',title:'Verbräuche (Jahr %0year%)',vAxis:{format:'# m3'}};
+wcs var options={chartArea:{left:40,width:'86%%'},legend:'none',title:'Verbräuche (Jahr %0year%)',vAxis:{format:'#0.00 m3'}};
 wcs new google.visualization.ColumnChart(document.getElementById('month')).draw(data,options);}google.charts.setOnLoadCallback(drawChartM);</script>
 }
 
@@ -98,11 +81,18 @@ mval=GasTotal
 yval=GasTotal
 last_gas=GasTotal
 avg_g=0
-for tmp 1 31 1 | dcon[tmp]=0 | next
-for tmp 1 12 1 | mcon[tmp]=0 | next
-for tmp 1 48 1 | g30[tmp]=0 | next
+; Wichtig: Alle Arrays explizit auf 0 setzen
+for tmp 1 31 1
+dcon[tmp]=0
+next
+for tmp 1 12 1
+mcon[tmp]=0
+next
+for tmp 1 48 1
+g30[tmp]=0
+next
 svars
-print Reset ok
+print Reset durchgeführt - Alle Werte auf 0
 }
 
 if (save==1) {
@@ -111,7 +101,6 @@ svars
 }
 
 if (year>2020) {
-; Verbrauch fuer 30-Min Balken aufsummieren
 if (upsecs%10==0) {
 avg_g+=sml[1]-last_gas
 last_gas=sml[1]
@@ -124,14 +113,11 @@ utm=s(2.0(int(uptime/1440)))+"d "+s(2.0(int(uptime/60)%24))+"h "+s(2.0(uptime%60
 GasTotal=sml[1]
 dcon[day]=GasTotal-dval
 mcon[month]=GasTotal-mval
-
-; Aktuellen 30-Min Slot bestimmen
 m30=int(((hours*60)+mins)/30)+1
 g30[m30]+=avg_g
 avg_g=0
 
 if ((chg[hour]>0) and (hour==0)) {
-; Neue Balken-Slots leeren
 for tmp 2 48 1 | g30[tmp]=0 | next
 if (day>1) { da=day } else {
 for tmp (da+1) 31 1 | dcon[tmp]=0 | next
@@ -145,8 +131,8 @@ svars
 }
 
 >W
-bu(save "Gespeichert" "Daten speichern")
-bu(res "Reset läuft..." "Verbrauch zurücksetzen")
+bu(save "Speichern" "Daten speichern")
+bu(res "Reset" "Verbrauch auf Null setzen")
 
 Tagesverbrauch: {m} %2(GasTotal-dval)% m3
 Monatsverbrauch: {m} %2(GasTotal-mval)% m3
@@ -158,7 +144,6 @@ Uptime: {m} %utm%
 $<div style="margin-left:-20px">
 $<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
 $<script type="text/javascript">google.charts.load('current',{packages:['corechart']});</script>
-
 %=#30min
 %=#daysub
 %=#monthsub
