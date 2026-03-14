@@ -15,7 +15,7 @@ p:mval=0
 p:dval=0
 p:yval=0
 M:p:sday=0 288
-; g30 ersetzt das alte s4h fuer die 30-Min-Balken
+; g30 Speicher fuer die 30-Min-Balken (24h Abdeckung)
 M:p:g30=0 48
 m5=0
 m30=0
@@ -44,7 +44,7 @@ wcs ['',%g30[tmp]%],
 }
 next
 wcs ]);
-wcs var options={chartArea:{left:40,width:'86%%'},legend:'none',title:'Verbrauch alle 30 Min (24h)',vAxis:{format:'#0.00 m3'}};
+wcs var options={chartArea:{left:40,width:'86%%'},legend:'none',title:'Gasverbrauch alle 30 Min (24h)',vAxis:{format:'#0.00 m3'}};
 wcs var chart=new google.visualization.ColumnChart(document.getElementById('chart30'));
 wcs chart.draw(data,options);}google.charts.setOnLoadCallback(draw30);</script>
 }
@@ -107,18 +107,10 @@ last_gas=GasTotal
 avgv2=0
 avgvc2=0
 avg_g=0
-for tmp 1 31 1
-dcon[tmp]=0
-next
-for tmp 1 12 1
-mcon[tmp]=0
-next
-for tmp 1 48 1
-g30[tmp]=0
-next
-for tmp 0 288 1
-sday[tmp]=0
-next
+for tmp 1 31 1 | dcon[tmp]=0 | next
+for tmp 1 12 1 | mcon[tmp]=0 | next
+for tmp 1 48 1 | g30[tmp]=0 | next
+for tmp 0 288 1 | sday[tmp]=0 | next
 svars
 print Reset ok
 }
@@ -129,7 +121,7 @@ svars
 }
 
 if (year>2020) {
-; Impulse sammeln fuer die 30-Min-Balken
+; Verbrauch fuer 30-Min Balken aufsummieren
 if (upsecs%10==0) {
 avg_g+=sml[1]-last_gas
 last_gas=sml[1]
@@ -143,12 +135,12 @@ GasTotal=sml[1]
 dcon[day]=GasTotal-dval
 mcon[month]=GasTotal-mval
 
-; 30-Minuten Slot berechnen
+; Aktuellen 30-Min Slot bestimmen
 m30=int(((hours*60)+mins)/30)+1
 g30[m30]+=avg_g
 avg_g=0
 
-; 24h-Diagramm (5 Min Intervalle)
+; 24h Liniendiagramm (alle 5 Min)
 m5=int((((hours*60)+mins)/5)+1)
 sday[0]=m5
 if (chg[m5]>0) {
@@ -159,21 +151,13 @@ avgvc2=0
 cstr="cnth"+s(1.0(((hours)*12)+int(mins/5))+1)+"/12"
 
 if ((chg[hour]>0) and (hour==0)) {
-; Neue 30-Min Slots fuer neuen Tag leeren
-for tmp 2 48 1
-g30[tmp]=0
-next
-if (day>1) {
-da=day
-} else {
-for tmp (da+1) 31 1
-dcon[tmp]=0
-next
+; Neue Balken-Slots leeren
+for tmp 2 48 1 | g30[tmp]=0 | next
+if (day>1) { da=day } else {
+for tmp (da+1) 31 1 | dcon[tmp]=0 | next
 mval=GasTotal
 }
-if (day==1 and month==1) {
-yval=GasTotal
-}
+if (day==1 and month==1) { yval=GasTotal }
 dval=GasTotal
 svars
 }
@@ -199,7 +183,7 @@ $<script type="text/javascript">google.charts.load('current',{packages:['corecha
 
 $<div id="chart2" style="text-align:center;width:400px"></div>
 $gc(lt sday "wr" "m3" cstr)
-$var options = {chartArea:{left:60,width:'83%%'},legend:'none',vAxis:{format:'# m3'},series: {0: {type: 'area'}},title:'Verbrauch 24h'};
+$var options = {chartArea:{left:60,width:'83%%'},legend:'none',vAxis:{format:'# m3'},series: {0: {type: 'area'}},title:'Verlauf 24h'};
 $gc(e)
 
 %=#daysub
