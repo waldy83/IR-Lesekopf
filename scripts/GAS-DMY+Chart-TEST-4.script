@@ -19,122 +19,70 @@ M:p:g30=0 48
 m5=0
 m30=0
 cstr="cnt0/12"
-avgv2=0
-avgvc2=0
 avg_g=0
 last_gas=0
 
 >B
 =>sensor53 r
 is(0 "Jan|Feb|Mär|Apr|Mai|Jun|Jul|Aug|Sep|Okt|Nov|Dez|")
-smlj=0
 =>sensor53 c1 %zaehler_start%
 
-#30min
-if wm>0 {
-wcs <div id="chart30" style="text-align:center;width:400px"></div>
-wcs <script language="JavaScript">function draw30(){
-wcs var data=google.visualization.arrayToDataTable([['Zeit','m3'],
+#30m
+wcs <div id="c30" style="width:390px;height:170px"></div><script>function dr30(){var data=google.visualization.arrayToDataTable([['T','m3'],
 for tmp 1 48 1
-if (tmp%4==1) { wcs ['%int((tmp-1)/2)%h',%g30[tmp]%], } else { wcs ['',%g30[tmp]%], }
+if(tmp%4==1){wcs ['%int((tmp-1)/2)%h',%g30[tmp]%],}else{wcs ['',%g30[tmp]%],}
 next
-wcs ]);
-wcs var options={chartArea:{left:40,width:'86%%'},legend:'none',title:'Gasverbrauch alle 30 Min (24h)',vAxis:{format:'#0.00 m3'}};
-wcs var chart=new google.visualization.ColumnChart(document.getElementById('chart30'));
-wcs chart.draw(data,options);}google.charts.setOnLoadCallback(draw30);</script>
-}
+wcs ]);new google.visualization.ColumnChart(document.getElementById('c30')).draw(data,{title:'30 Min'});}google.charts.setOnLoadCallback(dr30);</script>
 
-#daysub
-if wm>0 {
-wcs <div id="day" style="text-align:center;width:400px"></div>
-wcs <script language="JavaScript">function drawChartD(){
-wcs var data=google.visualization.arrayToDataTable([['Tag','m3',{role: 'style'}],
+#ds
+wcs <div id="cd" style="width:390px;height:170px"></div><script>function drD(){var data=google.visualization.arrayToDataTable([['T','m3',{role:'style'}],
 for tmp 1 dcon[-1] 1
 wcs [%tmp%,%dcon[tmp]%,'%(((tmp==day))?"red":"green")%'],
 next
-wcs ]);
-wcs var options={chartArea:{left:40,width:'86%%'},legend:'none',title:'Tagesverbräuche (Monat %is[month]%)',vAxis:{format:'# m3'}};
-wcs new google.visualization.ColumnChart(document.getElementById('day')).draw(data,options);}google.charts.setOnLoadCallback(drawChartD);</script>
-}
+wcs ]);new google.visualization.ColumnChart(document.getElementById('cd')).draw(data,{title:'Tag'});}google.charts.setOnLoadCallback(drD);</script>
 
-#monthsub
-if wm>0 {
-wcs <div id="month" style="text-align:center;width:400px"></div>
-wcs <script language="JavaScript">function drawChartM(){
-wcs var data=google.visualization.arrayToDataTable([['Monat','m3',{role: 'style'}],
+#ms
+wcs <div id="cm" style="width:390px;height:170px"></div><script>function drM(){var data=google.visualization.arrayToDataTable([['M','m3',{role:'style'}],
 for tmp 1 12 1
 wcs ['%is[tmp]%',%mcon[tmp]%,'%(((tmp==month))?"red":"green")%'],
 next
-wcs ]);
-wcs var options={chartArea:{left:40,width:'86%%'},legend:'none',title:'Verbräuche (Jahr %0year%)',vAxis:{format:'# m3'}};
-wcs new google.visualization.ColumnChart(document.getElementById('month')).draw(data,options);}google.charts.setOnLoadCallback(drawChartM);</script>
-}
+wcs ]);new google.visualization.ColumnChart(document.getElementById('cm')).draw(data,{title:'Monat'});}google.charts.setOnLoadCallback(drM);</script>
 
 >M 1
 +1,14,c,1,-500,Gas
 1,1-0:1.8.0*255(@%factor%,Gesamtverbrauch,m3,total,2)
 
 >S
-if (res==1) {
-res=0|dval=GasTotal|mval=GasTotal|yval=GasTotal|last_gas=GasTotal|avgv2=0|avg_g=0
-for tmp 1 31 1 | dcon[tmp]=0 | next
-for tmp 1 12 1 | mcon[tmp]=0 | next
-for tmp 1 48 1 | g30[tmp]=0 | next
-for tmp 0 288 1 | sday[tmp]=0 | next
-svars
-}
-
-if (year>2020) {
-if (upsecs%10==0) {
-avg_g+=sml[1]-last_gas
-last_gas=sml[1]
-}
-if (upsecs%60==0) {
-hour=hours
-utm=s(2.0(int(uptime/1440)))+"d "+s(2.0(int(uptime/60)%24))+"h "+s(2.0(uptime%60))+"m"
-GasTotal=sml[1]
-dcon[day]=GasTotal-dval
-mcon[month]=GasTotal-mval
-m30=int(((hours*60)+mins)/30)+1
-g30[m30]+=avg_g
-avg_g=0
-m5=int((((hours*60)+mins)/5)+1)
-sday[0]=m5
-if (chg[m5]>0) {
-sday[m5]=GasTotal-dval
-}
+if(res==1){res=0|dval=GasTotal|mval=GasTotal|yval=GasTotal|last_gas=GasTotal|avg_g=0
+for tmp 1 31 1|dcon[tmp]=0|next
+for tmp 1 12 1|mcon[tmp]=0|next
+for tmp 1 48 1|g30[tmp]=0|next
+for tmp 0 288 1|sday[tmp]=0|next
+svars}
+if(year>2020){
+if(upsecs%10==0){avg_g+=sml[1]-last_gas|last_gas=sml[1]}
+if(upsecs%60==0){hour=hours|utm=s(2.0(int(uptime/1440)))+"d "+s(2.0(int(uptime/60)%24))+"h "+s(2.0(uptime%60))+"m"
+GasTotal=sml[1]|dcon[day]=GasTotal-dval|mcon[month]=GasTotal-mval
+m30=int(((hours*60)+mins)/30)+1|g30[m30]+=avg_g|avg_g=0
+m5=int((((hours*60)+mins)/5)+1)|sday[0]=m5
+if(chg[m5]>0){sday[m5]=GasTotal-dval}
 cstr="cnth"+s(1.0(((hours)*12)+int(mins/5))+1)+"/12"
-if ((chg[hour]>0) and (hour==0)) {
-for tmp 2 48 1 | g30[tmp]=0 | next
-if (day>1) { da=day } else {
-for tmp (da+1) 31 1 | dcon[tmp]=0 | next
-mval=GasTotal
-}
-if (day==1 and month==1) { yval=GasTotal }
-dval=GasTotal|svars
-}
-}
-}
+if(chg[hour]>0)and(hour==0){
+for tmp 2 48 1|g30[tmp]=0|next
+if(day>1){da=day}else{for tmp (da+1) 31 1|dcon[tmp]=0|next|mval=GasTotal}
+if(day==1 and month==1){yval=GasTotal}
+dval=GasTotal|svars}}}
 
 >W
-bu(save "Save" "Speichern")
-bu(res "Reset" "Reset")
-T-Verbr: %2(GasTotal-dval)% m3
-M-Verbr: %2(GasTotal-mval)% m3
-Datum: %s(2.0day)%.%s(2.0month)%.%s(2.0year)% %s(2.0hours)%:%s(2.0mins)%
-Uptime: %utm%
-
-$<div style="margin-left:-20px">
-$<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
-$<script type="text/javascript">google.charts.load('current',{packages:['corechart']});</script>
-
-%=#30min
-
-$<div id="chart2" style="text-align:center;width:400px"></div>
+bu(save "Save" "Save")|bu(res "Reset" "Reset")
+T: %2(GasTotal-dval)% m3 | M: %2(GasTotal-mval)% m3
+$<div style="margin-left:-20px"><script src="https://www.gstatic.com/charts/loader.js"></script>
+$<script>google.charts.load('current',{packages:['corechart']});</script>
+%=#30m
+$<div id="c2" style="width:390px;height:170px"></div>
 $gc(lt sday "wr" "m3" cstr)
-$var options = {chartArea:{left:60,width:'83%%'},legend:'none',vAxis:{format:'# m3'},series: {0: {type: 'area'}},title:'Verlauf 24h (Trend)'};
+$var options={title:'24h Linie',legend:'none',series:{0:{type:'area'}}};
 $gc(e)
-
-%=#daysub
-%=#monthsub
+%=#ds
+%=#ms
 </div>
