@@ -37,20 +37,43 @@ if wm>0 {
 wcs <div id="chart30" style="text-align:center;width:400px"></div>
 wcs <script language="JavaScript">function draw30(){
 wcs var data=google.visualization.arrayToDataTable([['Zeit','m3',{role:'style'}],
-; Aktuellen Slot für die Farbe berechnen
-m30=Math.floor(((new Date().getHours()*60)+new Date().getMinutes())/30)+1
+; Aktuellen Slot für den Vergleich berechnen
+m30=int(((hours*60)+mins)/30)+1
 for tmp 1 48 1
-; Zeitstempel alle 2h (alle 4 Slots) anzeigen
-var tstr=''
-if (tmp%4==1) { tstr=Math.floor((tmp-1)/2)+'h' }
-; Farblogik: Aktuell=rot, Vergangenheit=grün, Zukunft=blau
-var col='blue'
-if (tmp<m30) { col='green' }
-if (tmp==m30) { col='red' }
-wcs [tstr,%g30[tmp]%,col],
+; Farbe bestimmen
+if (tmp<m30) {
+; Vergangenheit
+wcs [
+if (tmp%4==1) {
+wcs '%int((tmp-1)/2)%h'
+} else {
+wcs ''
+}
+wcs ,%g30[tmp]%,'green'],
+}
+if (tmp==m30) {
+; Aktuell
+wcs [
+if (tmp%4==1) {
+wcs '%int((tmp-1)/2)%h'
+} else {
+wcs ''
+}
+wcs ,%g30[tmp]%,'red'],
+}
+if (tmp>m30) {
+; Zukunft
+wcs [
+if (tmp%4==1) {
+wcs '%int((tmp-1)/2)%h'
+} else {
+wcs ''
+}
+wcs ,%g30[tmp]%,'blue'],
+}
 next
 wcs ]);
-wcs var options={chartArea:{left:40,width:'86%%'},legend:'none',title:'Tagesverbrauch (24h)',vAxis:{format:'#0.00 m3'}};
+wcs var options={chartArea:{left:40,width:'86%%'},legend:'none',title:'Gasverbrauch alle 30 Min (24h)',vAxis:{format:'#0.00 m3'}};
 wcs var chart=new google.visualization.ColumnChart(document.getElementById('chart30'));
 wcs chart.draw(data,options);}google.charts.setOnLoadCallback(draw30);</script>
 }
