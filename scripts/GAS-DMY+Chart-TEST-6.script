@@ -29,8 +29,8 @@ last_gas=sml[1]
 #30min
 if wm>0
 then
-wcs <center><div id="chart30" style="width:400px;height:250px"></div></center>
-wcs <script>function draw30(){
+wcs <div id="chart30" style="text-align:center;width:400px;margin:0 auto;"></div>
+wcs <script language="JavaScript">function draw30(){
 wcs var data=google.visualization.arrayToDataTable([['Zeit','m3',{role:'style'}],
 m30=int(((hours*60)+mins)/30)+1
 for tmp 1 48 1
@@ -55,16 +55,16 @@ wcs ,%g30[tmp]%,'blue'],
 endif
 next
 wcs ]);
-wcs var options={chartArea:{left:50,width:'80%'},legend:'none',title:'Tagesverlauf (30 min)',vAxis:{format:'#0.00'}};
-wcs new google.visualization.ColumnChart(document.getElementById('chart30')).draw(data,options);}
-wcs google.charts.setOnLoadCallback(draw30);</script>
+wcs var options={chartArea:{left:40,width:'86%%'},legend:'none',title:'Tagesverlauf (30 min)',vAxis:{format:'#0.00 m3'}};
+wcs var chart=new google.visualization.ColumnChart(document.getElementById('chart30'));
+wcs chart.draw(data,options);}google.charts.setOnLoadCallback(draw30);</script>
 endif
 
 #daysub
 if wm>0
 then
-wcs <center><div id="day" style="width:400px;height:250px"></div></center>
-wcs <script>function drawD(){
+wcs <div id="day" style="text-align:center;width:400px;margin:0 auto;"></div>
+wcs <script language="JavaScript">function drawChart(){
 wcs var data=google.visualization.arrayToDataTable([['Tag','m3',{role: 'style'}],
 for tmp 1 dcon[-1] 1
 wcs [%tmp%,%dcon[tmp]%,
@@ -82,20 +82,21 @@ wcs 'blue'],
 endif
 next
 wcs ]);
-wcs var options={chartArea:{left:50,width:'80%'},legend:'none',title:'Monat %is[month]%',vAxis:{format:'#0.00'}};
-wcs new google.visualization.ColumnChart(document.getElementById('day')).draw(data,options);}
-wcs google.charts.setOnLoadCallback(drawD);</script>
+wcs var options={chartArea:{left:40,width:'86%%'},legend:'none',title:'Tagesverbräuche (Monat %is[month]%)',vAxis:{format:'# m3'}};
+wcs var chart=new google.visualization.ColumnChart(document.getElementById('day'));
+wcs chart.draw(data,options);}google.charts.setOnLoadCallback(drawChart);</script>
 endif
 
 #monthsub
 if wm>0
 then
-wcs <center><div id="month" style="width:400px;height:250px"></div></center>
-wcs <script>function drawM(){
+wcs <div id="month" style="text-align:center;width:400px;margin:0 auto;"></div>
+wcs <script language="JavaScript">function drawChartM(){
 wcs var data=google.visualization.arrayToDataTable([['Monat','m3',{role: 'style'}],
 for tmp 1 12 1
 wcs ['%is[tmp]%',%mcon[tmp]%,
 if (tmp<month)
+then
 then
 wcs 'green'],
 endif
@@ -109,9 +110,9 @@ wcs 'blue'],
 endif
 next
 wcs ]);
-wcs var options={chartArea:{left:50,width:'80%'},legend:'none',title:'Jahr %year%',vAxis:{format:'#0.00'}};
-wcs new google.visualization.ColumnChart(document.getElementById('month')).draw(data,options);}
-wcs google.charts.setOnLoadCallback(drawM);</script>
+wcs var options={chartArea:{left:40,width:'86%%'},legend:'none',title:'Verbräuche (Jahr %0year%)',vAxis:{format:'# m3'}};
+wcs var chart=new google.visualization.ColumnChart(document.getElementById('month'));
+wcs chart.draw(data,options);}google.charts.setOnLoadCallback(drawChartM);</script>
 endif
 
 >M 1
@@ -135,17 +136,26 @@ for tmp 1 48 1
 g30[tmp]=0
 next
 svars
-print Reset ok
+print Werte wurden genullt
 endif
 
 if (save==1)
 then
 save=0
 svars
+print Daten gespeichert
 endif
 
-if (year>2020)
+if (sml[1]>0)
 then
+smlj=1
+endif
+
+if (year<2020)
+then
+break
+endif
+
 if (upsecs%10==0)
 then
 avg_g+=sml[1]-last_gas
@@ -155,10 +165,12 @@ endif
 if (upsecs%60==0)
 then
 hour=hours
+yr=year
 utm=s(2.0(int(uptime/1440)))+"d "+s(2.0(int(uptime/60)%24))+"h "+s(2.0(uptime%60))+"m"
 GasTotal=sml[1]
 dcon[day]=GasTotal-dval
 mcon[month]=GasTotal-mval
+
 m30=int(((hours*60)+mins)/30)+1
 g30[m30]+=avg_g
 avg_g=0
@@ -170,7 +182,9 @@ if (day>1)
 then
 da=day
 else
-for tmp (da+1) 31 1 | dcon[tmp]=0 | next
+for tmp (da+1) 31 1
+dcon[tmp]=0
+next
 mval=GasTotal
 endif
 if (day==1 and month==1)
@@ -181,27 +195,26 @@ dval=GasTotal
 svars
 endif
 endif
-endif
 
 >W
-bu(save "Sichern" "Speichern")
-bu(res "Reset" "Reset")
+bu(save "Gespeichert" "Daten speichern")
+bu(res "Verbrauch zurücksetzen" "Reset")
 
 Tagesverbrauch: {m} %2(GasTotal-dval)% m3
 Monatsverbrauch: {m} %2(GasTotal-mval)% m3
 Jahresverbrauch: {m} %2(GasTotal-yval)% m3
 
-Datum: {m} %s(2.0day)%.%s(2.0month)%.%s(2.0year)% - %s(2.0hours)%:%s(2.0mins)%
+Datum: {m} %s(2.0day)%.%s(2.0month)%.%s(2.0year)% - %s(2.0hours)%:%s(2.0mins)%:%s(2.0secs)%
 Uptime: {m} %utm%
 
 $<div style="text-align:center;">
-$<script src="https://www.gstatic.com/charts/loader.js"></script>
-$<script>google.charts.load('current',{packages:['corechart']});</script>
+$<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+$<script type="text/javascript">google.charts.load('current',{packages:['corechart']});</script>
 
 %=#30min
 %=#daysub
 %=#monthsub
 
 $<center><span style="font-size:10px;">
-Original by ottelo.jimdo.de - modified by waldy<br>
-</span></center></div>
+$Original by ottelo.jimdo.de - modified by waldy<br>
+$</span></center></div>
