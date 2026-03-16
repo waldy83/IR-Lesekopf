@@ -9,10 +9,8 @@ yr=0
 da=1
 GasTotal=0
 utm="00d 00h 00m"
-; Arrays für Historie
 M:p:dcon=0 31
 M:p:mcon=0 12
-; Array für 30-Minuten Slots
 M:p:g30=0 48
 p:mval=0
 p:dval=0
@@ -31,7 +29,7 @@ last_gas=sml[1]
 #30min
 if wm>0
 then
-wcs <div id="chart30" style="text-align:center;width:400px"></div>
+wcs <div id="chart30" style="text-align:center;width:400px;margin:0 auto;"></div>
 wcs <script language="JavaScript">function draw30(){
 wcs var data=google.visualization.arrayToDataTable([['Zeit','m3',{role:'style'}],
 m30=int(((hours*60)+mins)/30)+1
@@ -53,7 +51,7 @@ wcs ,%g30[tmp]%,'red'],
 endif
 if (tmp>m30)
 then
-wcs ,%g30[tmp]%,'#EEE'],
+wcs ,%g30[tmp]%,'blue'],
 endif
 next
 wcs ]);
@@ -65,21 +63,22 @@ endif
 #daysub
 if wm>0
 then
-wcs <div id="day" style="text-align:center;width:400px"></div>
+wcs <div id="day" style="text-align:center;width:400px;margin:0 auto;"></div>
 wcs <script language="JavaScript">function drawChart(){
 wcs var data=google.visualization.arrayToDataTable([['Tag','m3',{role: 'style'}],
 for tmp 1 dcon[-1] 1
-if (tmp==day)
-then
-wcs [%tmp%,%dcon[tmp]%,'red'],
-endif
+wcs [%tmp%,%dcon[tmp]%,
 if (tmp<day)
 then
-wcs [%tmp%,%dcon[tmp]%,'green'],
+wcs 'green'],
+endif
+if (tmp==day)
+then
+wcs 'red'],
 endif
 if (tmp>day)
 then
-wcs [%tmp%,%dcon[tmp]%,''],
+wcs 'blue'],
 endif
 next
 wcs ]);
@@ -91,27 +90,28 @@ endif
 #monthsub
 if wm>0
 then
-wcs <div id="month" style="text-align:center;width:400px"></div>
-wcs <script language="JavaScript">function drawChart(){
+wcs <div id="month" style="text-align:center;width:400px;margin:0 auto;"></div>
+wcs <script language="JavaScript">function drawChartM(){
 wcs var data=google.visualization.arrayToDataTable([['Monat','m3',{role: 'style'}],
 for tmp 1 12 1
+wcs ['%is[tmp]%',%mcon[tmp]%,
 if (tmp<month)
 then
-wcs ['%is[tmp]%',%mcon[tmp]%,'green'],
+wcs 'green'],
 endif
 if (tmp==month)
 then
-wcs ['%is[tmp]%',%mcon[tmp]%,'red'],
+wcs 'red'],
 endif
 if (tmp>month)
 then
-wcs ['%is[tmp]%',%mcon[tmp]%,'blue'],
+wcs 'blue'],
 endif
 next
 wcs ]);
 wcs var options={chartArea:{left:40,width:'86%%'},legend:'none',title:'Verbräuche (Jahr %0(year-1)%/%0year%)',vAxis:{format:'# m3'}};
 wcs var chart=new google.visualization.ColumnChart(document.getElementById('month'));
-wcs chart.draw(data,options);}google.charts.setOnLoadCallback(drawChart);</script>
+wcs chart.draw(data,options);}google.charts.setOnLoadCallback(drawChartM);</script>
 endif
 
 >M 1
@@ -128,15 +128,9 @@ mval=GasTotal
 yval=GasTotal
 last_gas=GasTotal
 avg_g=0
-for tmp 1 31 1
-dcon[tmp]=0
-next
-for tmp 1 12 1
-mcon[tmp]=0
-next
-for tmp 1 48 1
-g30[tmp]=0
-next
+for tmp 1 31 1 | dcon[tmp]=0 | next
+for tmp 1 12 1 | mcon[tmp]=0 | next
+for tmp 1 48 1 | g30[tmp]=0 | next
 svars
 print Werte wurden genullt
 endif
@@ -184,9 +178,7 @@ if (day>1)
 then
 da=day
 else
-for tmp (da+1) 31 1
-dcon[tmp]=0
-next
+for tmp (da+1) 31 1 | dcon[tmp]=0 | next
 mval=GasTotal
 endif
 if (day==1 and month==1)
