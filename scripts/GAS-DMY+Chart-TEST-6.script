@@ -1,8 +1,8 @@
 >D 48
 factor=100
+; Arrays für Diagramme
 M:p:dcon=0 31
 M:p:mcon=0 12
-; Array für 48 x 30 Minuten Slots
 M:p:g30=0 48
 GasTotal=0
 p:mval=0
@@ -14,6 +14,7 @@ hour=0
 yr=0
 da=1
 save=0
+res=0
 m30=0
 last_gas=0
 avg_g=0
@@ -23,105 +24,133 @@ avg_g=0
 is(0 "Jan|Feb|Mär|Apr|Mai|Jun|Jul|Aug|Sep|Okt|Nov|Dez|")
 smlj=0
 =>sensor53 c1 0
-; Initialisierung für Differenzmessung
 last_gas=sml[1]
 
 #30min
-if wm>0 {
+if wm>0
+then
 wcs <div id="chart30" style="text-align:center;width:400px"></div>
 wcs <script language="JavaScript">function draw30(){
 wcs var data=google.visualization.arrayToDataTable([['Zeit','m3',{role:'style'}],
 m30=int(((hours*60)+mins)/30)+1
 for tmp 1 48 1
 wcs [
-if (tmp%4==1) {
+if (tmp%4==1)
+then
 wcs '%int((tmp-1)/2)%h'
-} else {
+else
 wcs ''
-}
-if (tmp<m30) {
+endif
+if (tmp<m30)
+then
 wcs ,%g30[tmp]%,'green'],
-}
-if (tmp==m30) {
+endif
+if (tmp==m30)
+then
 wcs ,%g30[tmp]%,'red'],
-}
-if (tmp>m30) {
+endif
+if (tmp>m30)
+then
 wcs ,%g30[tmp]%,'#EEE'],
-}
+endif
 next
 wcs ]);
 wcs var options={chartArea:{left:40,width:'86%%'},legend:'none',title:'Tagesverlauf (30 min Slots)',vAxis:{format:'#0.00 m3'}};
 wcs var chart=new google.visualization.ColumnChart(document.getElementById('chart30'));
 wcs chart.draw(data,options);}google.charts.setOnLoadCallback(draw30);</script>
-}
+endif
 
 #daysub
-if wm>0 {
+if wm>0
+then
 wcs <div id="day" style="text-align:center;width:400px"></div>
 wcs <script language="JavaScript">function drawChart(){
 wcs var data=google.visualization.arrayToDataTable([['Tag','m3',{role: 'style'}],
 for tmp 1 dcon[-1] 1
-if (tmp==day) {
+if (tmp==day)
+then
 wcs [%tmp%,%dcon[tmp]%,'red'],
-}
-if (tmp<day) {
+endif
+if (tmp<day)
+then
 wcs [%tmp%,%dcon[tmp]%,'green'],
-}
-if (tmp>day) {
+endif
+if (tmp>day)
+then
 wcs [%tmp%,%dcon[tmp]%,''],
-}
+endif
 next
 wcs ]);
 wcs var options={chartArea:{left:40,width:'86%%'},legend:'none',title:'Tagesverbräuche (Monat %is[month]%)',vAxis:{format:'# m3'}};
 wcs var chart=new google.visualization.ColumnChart(document.getElementById('day'));
 wcs chart.draw(data,options);}google.charts.setOnLoadCallback(drawChart);</script>
-}
+endif
 
 #monthsub
-if wm>0 {
+if wm>0
+then
 wcs <div id="month" style="text-align:center;width:400px"></div>
 wcs <script language="JavaScript">function drawChartM(){
 wcs var data=google.visualization.arrayToDataTable([['Monat','m3',{role: 'style'}],
 for tmp 1 12 1
-if (tmp<month) {
+if (tmp<month)
+then
 wcs ['%is[tmp]%',%mcon[tmp]%,'green'],
-}
-if (tmp==month) {
+endif
+if (tmp==month)
+then
 wcs ['%is[tmp]%',%mcon[tmp]%,'red'],
-}
-if (tmp>month) {
+endif
+if (tmp>month)
+then
 wcs ['%is[tmp]%',%mcon[tmp]%,'blue'],
-}
+endif
 next
 wcs ]);
 wcs var options={chartArea:{left:40,width:'86%%'},legend:'none',title:'Verbräuche (Jahr %year%)',vAxis:{format:'# m3'}};
 wcs var chart=new google.visualization.ColumnChart(document.getElementById('month'));
 wcs chart.draw(data,options);}google.charts.setOnLoadCallback(drawChartM);</script>
-}
+endif
 
 >M 1
 +1,14,c,1,-500,Gas
 1,1-0:1.8.0*255(@%factor%,Gesamtverbrauch,m3,total,2)
 
 >S
-if (save==1) {
+; --- RESET LOGIK ---
+if (res==1)
+then
+res=0
+GasTotal=sml[1]
+dval=GasTotal
+mval=GasTotal
+yval=GasTotal
+last_gas=GasTotal
+avg_g=0
+; Alle Diagramm-Arrays nullen
+for tmp 1 31 1 | dcon[tmp]=0 | next
+for tmp 1 12 1 | mcon[tmp]=0 | next
+for tmp 1 48 1 | g30[tmp]=0 | next
+svars
+print Alle Werte wurden zurückgesetzt
+endif
+
+if (save==1)
+then
 save=0
 svars
-}
+endif
 
-if (sml[1]>0) {
-smlj=1
-}
-
-if (year>2020) {
-; Alle 10 Sekunden Differenz zum letzten Stand addieren
-if (upsecs%10==0) {
+if (year>2020)
+then
+if (upsecs%10==0)
+then
 avg_g+=sml[1]-last_gas
 last_gas=sml[1]
-}
+endif
 
-; Alle 60 Sekunden Hauptberechnung
-if (upsecs%60==0) {
+if (upsecs%60==0)
+then
 hour=hours
 yr=year
 utm=s(2.0(int(uptime/1440)))+"d "+s(2.0(int(uptime/60)%24))+"h "+s(2.0(uptime%60))+"m"
@@ -129,37 +158,38 @@ GasTotal=sml[1]
 dcon[day]=GasTotal-dval
 mcon[month]=GasTotal-mval
 
-; In aktuellen 30-Min-Slot schreiben
 m30=int(((hours*60)+mins)/30)+1
 g30[m30]+=avg_g
 avg_g=0
 
-; Mitternachts-Reset und Speicher-Logik
-if ((chg[hour]>0) and (hour==0)) {
-; 30 Min Slots für den neuen Tag leeren
+if ((chg[hour]>0) and (hour==0))
+then
 for tmp 1 48 1 | g30[tmp]=0 | next
-if (day>1) {
+if (day>1)
+then
 da=day
-} else {
+else
 for tmp (da+1) 31 1 | dcon[tmp]=0 | next
 mval=GasTotal
-}
+endif
 if (chg[yr]>0) { yval=GasTotal }
 dval=GasTotal
 svars
-}
-}
-}
+endif
+endif
+endif
 
 >W
-bu(save "gespeichert!" "Daten sofort speichern")
+; Buttons
+bu(save "Speichern" "Daten sichern")
+bu(res "RESET" "ALLE WERTE NULLEN")
 
-Tagesverbrauch{m}%2(GasTotal-dval)% m3
-Monatsverbrauch{m}%2(GasTotal-mval)% m3
-Jahresverbrauch{m}%2(GasTotal-yval)% m3
+Tagesverbrauch: {m}%2(GasTotal-dval)% m3
+Monatsverbrauch: {m}%2(GasTotal-mval)% m3
+Jahresverbrauch: {m}%2(GasTotal-yval)% m3
 
-Datum{m}%s(2.0day)%.%s(2.0month)%.%s(2.0year)% - %s(2.0hours)%:%s(2.0mins)%
-Uptime{m}%utm%
+Datum: {m}%s(2.0day)%.%s(2.0month)%.%s(2.0year)% - %s(2.0hours)%:%s(2.0mins)%
+Uptime: {m}%utm%
 
 $<div style="margin-left:-20px">
 $<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
@@ -170,5 +200,5 @@ $<script type="text/javascript">google.charts.load('current',{packages:['corecha
 %=#monthsub
 
 $<center><span style="font-size:10px;">
-$Original by ottelo.jimdo.de - modified by waldy<br>
-$</span></center></div>
+Original by ottelo.jimdo.de - modified by waldy<br>
+</span></center></div>
