@@ -1,6 +1,20 @@
 >D 48
+;============================================================
+; GASZÄHLER-SCRIPT (Historie + Charts)
+;============================================================
+; Basis-Script: ottelo.jimdo.de  |  Modifiziert: waldy
+;============================================================
+
+; --- EINSTELLUNGEN (Hier anpassen) ---
+; Impuls-Faktor:
+; 100 = 0,01 m³/Imp | 10  = 0,1 m³/Imp | 1  = 1,0 m³/Imp
 factor=100
+
+; Startwert des mechanischen Zählers (z.B. 36489.08)
+; Hinweis: Ohne Komma eingeben
 zaehler_start=0
+
+; --- INTERNE VARIABLEN (Nicht ändern) ---
 res=0
 save=0
 tmp=0
@@ -198,7 +212,7 @@ endif
 
 >W
 bu(save "Gespeichert" "Daten speichern")
-bu(res "Verbrauch zurücksetzen" "Reset")
+bu(res "Reset läuft..." "Verbrauch zurücksetzen")
 
 Tagesverbrauch: {m} %2(GasTotal-dval)% m3
 Monatsverbrauch: {m} %2(GasTotal-mval)% m3
