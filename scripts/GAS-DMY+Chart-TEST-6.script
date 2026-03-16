@@ -29,7 +29,7 @@ last_gas=sml[1]
 #30min
 if wm>0
 then
-wcs <div id="chart30" style="text-align:center;width:400px;margin:0 auto;"></div>
+wcs <div id="chart30" style="width:400px;margin:10px auto;display:block;"></div>
 wcs <script language="JavaScript">function draw30(){
 wcs var data=google.visualization.arrayToDataTable([['Zeit','m3',{role:'style'}],
 m30=int(((hours*60)+mins)/30)+1
@@ -55,7 +55,7 @@ wcs ,%g30[tmp]%,'blue'],
 endif
 next
 wcs ]);
-wcs var options={chartArea:{left:40,width:'86%%'},legend:'none',title:'Tagesverlauf (30 min)',vAxis:{format:'#0.00 m3'}};
+wcs var options={chartArea:{left:50,width:'85%'},legend:'none',title:'Tagesverlauf (30 min)',vAxis:{format:'#0.00 m3'}};
 wcs var chart=new google.visualization.ColumnChart(document.getElementById('chart30'));
 wcs chart.draw(data,options);}google.charts.setOnLoadCallback(draw30);</script>
 endif
@@ -63,8 +63,8 @@ endif
 #daysub
 if wm>0
 then
-wcs <div id="day" style="text-align:center;width:400px;margin:0 auto;"></div>
-wcs <script language="JavaScript">function drawChart(){
+wcs <div id="day" style="width:400px;margin:10px auto;display:block;"></div>
+wcs <script language="JavaScript">function drawChartD(){
 wcs var data=google.visualization.arrayToDataTable([['Tag','m3',{role: 'style'}],
 for tmp 1 dcon[-1] 1
 wcs [%tmp%,%dcon[tmp]%,
@@ -82,21 +82,20 @@ wcs 'blue'],
 endif
 next
 wcs ]);
-wcs var options={chartArea:{left:40,width:'86%%'},legend:'none',title:'Tagesverbräuche (Monat %is[month]%)',vAxis:{format:'# m3'}};
+wcs var options={chartArea:{left:50,width:'85%'},legend:'none',title:'Tagesverbräuche (Monat %is[month]%)',vAxis:{format:'# m3'}};
 wcs var chart=new google.visualization.ColumnChart(document.getElementById('day'));
-wcs chart.draw(data,options);}google.charts.setOnLoadCallback(drawChart);</script>
+wcs chart.draw(data,options);}google.charts.setOnLoadCallback(drawChartD);</script>
 endif
 
 #monthsub
 if wm>0
 then
-wcs <div id="month" style="text-align:center;width:400px;margin:0 auto;"></div>
+wcs <div id="month" style="width:400px;margin:10px auto;display:block;"></div>
 wcs <script language="JavaScript">function drawChartM(){
 wcs var data=google.visualization.arrayToDataTable([['Monat','m3',{role: 'style'}],
 for tmp 1 12 1
 wcs ['%is[tmp]%',%mcon[tmp]%,
 if (tmp<month)
-then
 then
 wcs 'green'],
 endif
@@ -110,7 +109,7 @@ wcs 'blue'],
 endif
 next
 wcs ]);
-wcs var options={chartArea:{left:40,width:'86%%'},legend:'none',title:'Verbräuche (Jahr %0year%)',vAxis:{format:'# m3'}};
+wcs var options={chartArea:{left:50,width:'85%'},legend:'none',title:'Verbräuche (Jahr %year%)',vAxis:{format:'# m3'}};
 wcs var chart=new google.visualization.ColumnChart(document.getElementById('month'));
 wcs chart.draw(data,options);}google.charts.setOnLoadCallback(drawChartM);</script>
 endif
@@ -126,15 +125,9 @@ res=0
 dval=GasTotal
 mval=GasTotal
 yval=GasTotal
-for tmp 1 31 1
-dcon[tmp]=0
-next
-for tmp 1 12 1
-mcon[tmp]=0
-next
-for tmp 1 48 1
-g30[tmp]=0
-next
+for tmp 1 31 1 | dcon[tmp]=0 | next
+for tmp 1 12 1 | mcon[tmp]=0 | next
+for tmp 1 48 1 | g30[tmp]=0 | next
 svars
 print Werte wurden genullt
 endif
@@ -143,7 +136,6 @@ if (save==1)
 then
 save=0
 svars
-print Daten gespeichert
 endif
 
 if (sml[1]>0)
@@ -182,9 +174,7 @@ if (day>1)
 then
 da=day
 else
-for tmp (da+1) 31 1
-dcon[tmp]=0
-next
+for tmp (da+1) 31 1 | dcon[tmp]=0 | next
 mval=GasTotal
 endif
 if (day==1 and month==1)
@@ -198,7 +188,7 @@ endif
 
 >W
 bu(save "Gespeichert" "Daten speichern")
-bu(res "Verbrauch zurücksetzen" "Reset")
+bu(res "Reset" "Verbrauch zurücksetzen")
 
 Tagesverbrauch: {m} %2(GasTotal-dval)% m3
 Monatsverbrauch: {m} %2(GasTotal-mval)% m3
@@ -207,7 +197,7 @@ Jahresverbrauch: {m} %2(GasTotal-yval)% m3
 Datum: {m} %s(2.0day)%.%s(2.0month)%.%s(2.0year)% - %s(2.0hours)%:%s(2.0mins)%:%s(2.0secs)%
 Uptime: {m} %utm%
 
-$<div style="text-align:center;">
+$<div style="text-align:center;width:100%;">
 $<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
 $<script type="text/javascript">google.charts.load('current',{packages:['corechart']});</script>
 
