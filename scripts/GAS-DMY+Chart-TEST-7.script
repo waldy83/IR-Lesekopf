@@ -1,5 +1,5 @@
 >D 48
-; --- EINSTELLUNGEN ---
+; --- EINSTELLUNGEN --- v2
 factor=100
 zaehler_start=3685565
 
@@ -89,7 +89,7 @@ endif
 if wm>0
 then
 wcs <div id="day" style="width:400px;"></div>
-wcs <script language="JavaScript">function drawChart(){
+wcs <script language="JavaScript">function drawChartD(){
 if (ctD==0)
 then
 wcs var data=google.visualization.arrayToDataTable([['Tag','m3',{role: 'style'}],
@@ -119,7 +119,7 @@ wcs ]);
 wcs var chart=new google.visualization.AreaChart(document.getElementById('day'));
 endif
 wcs var options={chartArea:{left:40,width:'86%%'},legend:'none',title:'Tagesverbräuche (Monat %is[month]%)',vAxis:{format:'# m3'},colors:['#4CAF50'],areaOpacity:0.2};
-wcs chart.draw(data,options);}google.charts.setOnLoadCallback(drawChart);</script>
+wcs chart.draw(data,options);}google.charts.setOnLoadCallback(drawChartD);</script>
 endif
 
 #monthsub
@@ -174,7 +174,7 @@ for tmp 1 31 1 | dcon[tmp]=0 | next
 for tmp 1 12 1 | mcon[tmp]=0 | next
 for tmp 1 48 1 | g30[tmp]=0 | next
 svars
-print Werte wurden genullt
+print Reset durchgeführt
 endif
 
 if (save==1)
@@ -208,7 +208,6 @@ utm=s(2.0(int(uptime/1440)))+"d "+s(2.0(int(uptime/60)%24))+"h "+s(2.0(uptime%60
 GasTotal=sml[1]
 dcon[day]=GasTotal-dval
 mcon[month]=GasTotal-mval
-
 m30=int(((hours*60)+mins)/30)+1
 g30[m30]+=avg_g
 avg_g=0
