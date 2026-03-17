@@ -69,7 +69,7 @@ wcs ,%g30[tmp]%,'blue'],
 endif
 next
 wcs ]);
-wcs var options={chartArea:{left:40,width:'86%%'},legend:'none',title:'Tagesverlauf (30 min)',vAxis:{format:'#0.00 m3'}};
+wcs var options={chartArea:{left:40,width:'86%%'},legend:'none',title:'Tagesverlauf (24 h)',vAxis:{format:'#0.00 m3'}};
 wcs var chart=new google.visualization.ColumnChart(document.getElementById('chart30'));
 wcs chart.draw(data,options);}google.charts.setOnLoadCallback(draw30);</script>
 endif
