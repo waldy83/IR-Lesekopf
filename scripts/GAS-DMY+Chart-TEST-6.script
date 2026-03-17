@@ -1,15 +1,20 @@
-D 48
+>D 48
 ;============================================================
 ; GASZÄHLER-SCRIPT (Historie + Charts)
 ;============================================================
 ; Basis-Script: ottelo.jimdo.de  |  Modifiziert: waldy
 ;============================================================
 
-; --- EINSTELLUNGEN ---
+; --- EINSTELLUNGEN (Hier anpassen) ---
+; Impuls-Faktor:
+; 100 = 0,01 m³/Imp | 10  = 0,1 m³/Imp | 1  = 1,0 m³/Imp
 factor=100
+
+; Startwert des mechanischen Zählers (z.B. 36489.08)
+; Hinweis: Ohne Komma eingeben
 zaehler_start=0
 
-; --- INTERNE VARIABLEN ---
+; --- INTERNE VARIABLEN (Nicht ändern) ---
 res=0
 save=0
 tmp=0
@@ -38,7 +43,7 @@ last_gas=sml[1]
 #30min
 if wm>0
 then
-wcs <div id="chart30" style="text-align:center;width:400px"></div>
+wcs <div id="chart30" style="width:400px;"></div>
 wcs <script language="JavaScript">function draw30(){
 wcs var data=google.visualization.arrayToDataTable([['Zeit','m3',{role:'style'}],
 m30=int(((hours*60)+mins)/30)+1
@@ -72,8 +77,8 @@ endif
 #daysub
 if wm>0
 then
-wcs <div id="day" style="text-align:center;width:400px"></div>
-wcs <script language="JavaScript">function drawD(){
+wcs <div id="day" style="width:400px;"></div>
+wcs <script language="JavaScript">function drawChart(){
 wcs var data=google.visualization.arrayToDataTable([['Tag','m3',{role: 'style'}],
 for tmp 1 dcon[-1] 1
 wcs [%tmp%,%dcon[tmp]%,
@@ -93,14 +98,14 @@ next
 wcs ]);
 wcs var options={chartArea:{left:40,width:'86%%'},legend:'none',title:'Tagesverbräuche (Monat %is[month]%)',vAxis:{format:'# m3'}};
 wcs var chart=new google.visualization.ColumnChart(document.getElementById('day'));
-wcs chart.draw(data,options);}google.charts.setOnLoadCallback(drawD);</script>
+wcs chart.draw(data,options);}google.charts.setOnLoadCallback(drawChart);</script>
 endif
 
 #monthsub
 if wm>0
 then
-wcs <div id="month" style="text-align:center;width:400px"></div>
-wcs <script language="JavaScript">function drawM(){
+wcs <div id="month" style="width:400px;"></div>
+wcs <script language="JavaScript">function drawChartM(){
 wcs var data=google.visualization.arrayToDataTable([['Monat','m3',{role: 'style'}],
 for tmp 1 12 1
 wcs ['%is[tmp]%',%mcon[tmp]%,
@@ -118,9 +123,9 @@ wcs 'blue'],
 endif
 next
 wcs ]);
-wcs var options={chartArea:{left:40,width:'86%%'},legend:'none',title:'Verbräuche (Jahr %year%)',vAxis:{format:'# m3'}};
+wcs var options={chartArea:{left:40,width:'86%%'},legend:'none',title:'Verbräuche (Jahr %0year%)',vAxis:{format:'# m3'}};
 wcs var chart=new google.visualization.ColumnChart(document.getElementById('month'));
-wcs chart.draw(data,options);}google.charts.setOnLoadCallback(drawM);</script>
+wcs chart.draw(data,options);}google.charts.setOnLoadCallback(drawChartM);</script>
 endif
 
 >M 1
