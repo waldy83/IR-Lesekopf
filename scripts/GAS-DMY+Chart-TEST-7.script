@@ -1,13 +1,12 @@
 >D 48
-;============================================================
-; GASZÄHLER-SCRIPT (Historie + Charts)
-;============================================================
-; Basis-Script: ottelo.jimdo.de  |  Modifiziert: waldy
-;============================================================
-
-; --- EINSTELLUNGEN (Hier anpassen) ---
+; --- EINSTELLUNGEN ---
 factor=100
-zaehler_start=0
+zaehler_start=3685565
+
+; --- CHART-TYP FÜR TAGESVERLAUF ---
+; 0 = Balken (mit rot/grün/blau Logik)
+; 1 = Linie/Fläche (durchgehende Linie)
+chart_type=1
 
 ; --- INTERNE VARIABLEN ---
 res=0
@@ -40,8 +39,38 @@ if wm>0
 then
 wcs <div id="chart30" style="width:400px;"></div>
 wcs <script language="JavaScript">function draw30(){
-wcs var data=google.visualization.arrayToDataTable([['Zeit','m3'],
+if (chart_type==0)
+then
+; --- LOGIK FÜR BALKEN ---
+wcs var data=google.visualization.arrayToDataTable([['Zeit','m3',{role:'style'}],
 m30=int(((hours*60)+mins)/30)+1
+for tmp 1 48 1
+wcs [
+if (tmp%4==1)
+then
+wcs '%int((tmp-1)/2)%h'
+else
+wcs ''
+endif
+if (tmp<m30)
+then
+wcs ,%g30[tmp]%,'green'],
+endif
+if (tmp==m30)
+then
+wcs ,%g30[tmp]%,'red'],
+endif
+if (tmp>m30)
+then
+wcs ,%g30[tmp]%,'blue'],
+endif
+next
+wcs ]);
+wcs var options={chartArea:{left:40,width:'86%%'},legend:'none',title:'Tagesverlauf (30 min)',vAxis:{format:'#0.00 m3'}};
+wcs var chart=new google.visualization.ColumnChart(document.getElementById('chart30'));
+else
+; --- LOGIK FÜR LINIE ---
+wcs var data=google.visualization.arrayToDataTable([['Zeit','m3'],
 for tmp 1 48 1
 wcs [
 if (tmp%4==1)
@@ -53,8 +82,9 @@ endif
 wcs ,%g30[tmp]%],
 next
 wcs ]);
-wcs var options={chartArea:{left:40,width:'86%%'},legend:'none',title:'Tagesverlauf (30 min)',vAxis:{format:'#0.00 m3'},colors:['#2196F3'],areaOpacity: 0.2};
+wcs var options={chartArea:{left:40,width:'86%%'},legend:'none',title:'Tagesverlauf (30 min)',vAxis:{format:'#0.00 m3'},colors:['#2196F3'],areaOpacity:0.2};
 wcs var chart=new google.visualization.AreaChart(document.getElementById('chart30'));
+endif
 wcs chart.draw(data,options);}google.charts.setOnLoadCallback(draw30);</script>
 endif
 
@@ -123,15 +153,9 @@ res=0
 dval=GasTotal
 mval=GasTotal
 yval=GasTotal
-for tmp 1 31 1
-dcon[tmp]=0
-next
-for tmp 1 12 1
-mcon[tmp]=0
-next
-for tmp 1 48 1
-g30[tmp]=0
-next
+for tmp 1 31 1 | dcon[tmp]=0 | next
+for tmp 1 12 1 | mcon[tmp]=0 | next
+for tmp 1 48 1 | g30[tmp]=0 | next
 svars
 print Werte wurden genullt
 endif
@@ -179,9 +203,7 @@ if (day>1)
 then
 da=day
 else
-for tmp (da+1) 31 1
-dcon[tmp]=0
-next
+for tmp (da+1) 31 1 | dcon[tmp]=0 | next
 mval=GasTotal
 endif
 if (day==1 and month==1)
