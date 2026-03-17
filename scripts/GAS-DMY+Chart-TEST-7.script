@@ -3,10 +3,10 @@
 factor=100
 zaehler_start=3685565
 
-; --- CHART-TYP FÜR TAGESVERLAUF ---
-; 0 = Balken (mit rot/grün/blau Logik)
-; 1 = Linie/Fläche (durchgehende Linie)
-chart_type=1
+; --- CHART-TYP AUSWAHL (0 = Balken | 1 = Fläche/Linie) ---
+ct30=1
+ctD=0
+ctM=0
 
 ; --- INTERNE VARIABLEN ---
 res=0
@@ -39,9 +39,8 @@ if wm>0
 then
 wcs <div id="chart30" style="width:400px;"></div>
 wcs <script language="JavaScript">function draw30(){
-if (chart_type==0)
+if (ct30==0)
 then
-; --- LOGIK FÜR BALKEN ---
 wcs var data=google.visualization.arrayToDataTable([['Zeit','m3',{role:'style'}],
 m30=int(((hours*60)+mins)/30)+1
 for tmp 1 48 1
@@ -66,10 +65,8 @@ wcs ,%g30[tmp]%,'blue'],
 endif
 next
 wcs ]);
-wcs var options={chartArea:{left:40,width:'86%%'},legend:'none',title:'Tagesverlauf (30 min)',vAxis:{format:'#0.00 m3'}};
 wcs var chart=new google.visualization.ColumnChart(document.getElementById('chart30'));
 else
-; --- LOGIK FÜR LINIE ---
 wcs var data=google.visualization.arrayToDataTable([['Zeit','m3'],
 for tmp 1 48 1
 wcs [
@@ -82,9 +79,9 @@ endif
 wcs ,%g30[tmp]%],
 next
 wcs ]);
-wcs var options={chartArea:{left:40,width:'86%%'},legend:'none',title:'Tagesverlauf (30 min)',vAxis:{format:'#0.00 m3'},colors:['#2196F3'],areaOpacity:0.2};
 wcs var chart=new google.visualization.AreaChart(document.getElementById('chart30'));
 endif
+wcs var options={chartArea:{left:40,width:'86%%'},legend:'none',title:'Tagesverlauf (30 min)',vAxis:{format:'#0.00 m3'},colors:['#2196F3'],areaOpacity:0.2};
 wcs chart.draw(data,options);}google.charts.setOnLoadCallback(draw30);</script>
 endif
 
@@ -93,6 +90,8 @@ if wm>0
 then
 wcs <div id="day" style="width:400px;"></div>
 wcs <script language="JavaScript">function drawChart(){
+if (ctD==0)
+then
 wcs var data=google.visualization.arrayToDataTable([['Tag','m3',{role: 'style'}],
 for tmp 1 dcon[-1] 1
 wcs [%tmp%,%dcon[tmp]%,
@@ -110,8 +109,16 @@ wcs 'blue'],
 endif
 next
 wcs ]);
-wcs var options={chartArea:{left:40,width:'86%%'},legend:'none',title:'Tagesverbräuche (Monat %is[month]%)',vAxis:{format:'# m3'}};
 wcs var chart=new google.visualization.ColumnChart(document.getElementById('day'));
+else
+wcs var data=google.visualization.arrayToDataTable([['Tag','m3'],
+for tmp 1 dcon[-1] 1
+wcs [%tmp%,%dcon[tmp]%],
+next
+wcs ]);
+wcs var chart=new google.visualization.AreaChart(document.getElementById('day'));
+endif
+wcs var options={chartArea:{left:40,width:'86%%'},legend:'none',title:'Tagesverbräuche (Monat %is[month]%)',vAxis:{format:'# m3'},colors:['#4CAF50'],areaOpacity:0.2};
 wcs chart.draw(data,options);}google.charts.setOnLoadCallback(drawChart);</script>
 endif
 
@@ -120,6 +127,8 @@ if wm>0
 then
 wcs <div id="month" style="width:400px;"></div>
 wcs <script language="JavaScript">function drawChartM(){
+if (ctM==0)
+then
 wcs var data=google.visualization.arrayToDataTable([['Monat','m3',{role: 'style'}],
 for tmp 1 12 1
 wcs ['%is[tmp]%',%mcon[tmp]%,
@@ -137,8 +146,16 @@ wcs 'blue'],
 endif
 next
 wcs ]);
-wcs var options={chartArea:{left:40,width:'86%%'},legend:'none',title:'Verbräuche (Jahr %0year%)',vAxis:{format:'# m3'}};
 wcs var chart=new google.visualization.ColumnChart(document.getElementById('month'));
+else
+wcs var data=google.visualization.arrayToDataTable([['Monat','m3'],
+for tmp 1 12 1
+wcs ['%is[tmp]%',%mcon[tmp]%],
+next
+wcs ]);
+wcs var chart=new google.visualization.AreaChart(document.getElementById('month'));
+endif
+wcs var options={chartArea:{left:40,width:'86%%'},legend:'none',title:'Verbräuche (Jahr %0year%)',vAxis:{format:'# m3'},colors:['#FF9800'],areaOpacity:0.2};
 wcs chart.draw(data,options);}google.charts.setOnLoadCallback(drawChartM);</script>
 endif
 
