@@ -1,5 +1,5 @@
 >D 48
-; --- EINSTELLUNGEN --- v2
+; --- EINSTELLUNGEN --- v3
 factor=100
 zaehler_start=3685565
 
@@ -51,17 +51,18 @@ wcs '%int((tmp-1)/2)%h'
 else
 wcs ''
 endif
+wcs ,%g30[tmp]%,
 if (tmp<m30)
 then
-wcs ,%g30[tmp]%,'green'],
+wcs 'green'],
 endif
 if (tmp==m30)
 then
-wcs ,%g30[tmp]%,'red'],
+wcs 'red'],
 endif
 if (tmp>m30)
 then
-wcs ,%g30[tmp]%,'blue'],
+wcs 'blue'],
 endif
 next
 wcs ]);
@@ -167,14 +168,22 @@ endif
 if (res==1)
 then
 res=0
+GasTotal=sml[1]
 dval=GasTotal
 mval=GasTotal
 yval=GasTotal
-for tmp 1 31 1 | dcon[tmp]=0 | next
-for tmp 1 12 1 | mcon[tmp]=0 | next
-for tmp 1 48 1 | g30[tmp]=0 | next
+avg_g=0
+for tmp 1 31 1 
+dcon[tmp]=0 
+next
+for tmp 1 12 1 
+mcon[tmp]=0 
+next
+for tmp 1 48 1 
+g30[tmp]=0 
+next
 svars
-print Reset durchgeführt
+print Reset durchgeführt - Zählerstand: %GasTotal%
 endif
 
 if (save==1)
