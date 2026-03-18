@@ -1,25 +1,15 @@
 >D 48
 ;============================================================
-; GASZÄHLER-SCRIPT (Historie + Charts) v1
+; GASZÄHLER-SCRIPT (Historie + Charts) v2
 ;============================================================
-; Basis-Script: ottelo.jimdo.de  |  Modifiziert: waldy
-;============================================================
-
-; --- EINSTELLUNGEN (Hier anpassen) ---
-; Impuls-Faktor:
-; 100 = 0,01 m³/Imp | 10  = 0,1 m³/Imp | 1  = 1,0 m³/Imp
 factor=100
-
-; Startwert des mechanischen Zählers (z.B. 36489.08)
-; Hinweis: Ohne Komma eingeben
 zaehler_start=0
-
-; --- CHART-TYP AUSWAHL (0 = Balken | 1 = Linie) ---
 chart_type_30min=1
 chart_type_day=0
 chart_type_month=0
-
-; --- INTERNE VARIABLEN (Nicht ändern) ---
+; --- Die Schutz-Variable ---
+auth="waldy"
+; ---------------------------
 res=0
 save=0
 tmp=0
@@ -176,6 +166,14 @@ endif
 1,1-0:1.8.0*255(@%factor%,Gesamtverbrauch,m3,total,2)
 
 >S
+; --- DER CHECK ---
+; Wir prüfen, ob auth mit 'w' (119) beginnt
+tmp=sb(auth 0)
+if (tmp!=119)
+then
+break
+endif
+
 if (res==1)
 then
 res=0
@@ -194,7 +192,7 @@ for tmp 1 48 1
 g30[tmp]=0 
 next
 svars
-print Reset durchgeführt - Zählerstand: %GasTotal%
+print Reset durchgeführt
 endif
 
 if (save==1)
@@ -271,5 +269,5 @@ $<script type="text/javascript">google.charts.load('current',{packages:['corecha
 %=#monthsub
 
 $<center><span style="font-size:10px;">
-$Original by ottelo.jimdo.de - modified by waldy<br>
+$Original by ottelo.jimdo.de - modified by %auth%<br>
 $</span></center></div>
