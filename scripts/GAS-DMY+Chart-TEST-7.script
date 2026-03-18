@@ -1,6 +1,6 @@
 >D 48
 factor=100
-zaehler_start=1
+zaehler_start=2
 chart_type_30min=1
 chart_type_day=0
 chart_type_month=0
@@ -164,8 +164,12 @@ endif
 1,1-0:1.8.0*255(@%factor%,Gesamtverbrauch,m3,total,2)
 
 >S
-; --- Summenprüfung des Namens w-a-l-d-y (119+97+108+100+121) ---
-chk=sb(auth 0)+sb(auth 1)+sb(auth 2)+sb(auth 3)+sb(auth 4)
+; --- Schrittweise Prüfsummenberechnung zur Vermeidung von Fehlern ---
+chk=sb(auth 0)
+chk+=sb(auth 1)
+chk+=sb(auth 2)
+chk+=sb(auth 3)
+chk+=sb(auth 4)
 
 if (res==1)
 then
@@ -193,7 +197,7 @@ save=0
 svars
 endif
 
-; Zählung nur wenn Prüfsumme exakt 556 entspricht
+; Zählung nur wenn Prüfsumme waldy (556) entspricht
 if (chk==556)
 then
 
