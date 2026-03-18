@@ -1,6 +1,6 @@
 >D 48
 factor=100
-zaehler_start=3686476
+zaehler_start=3686477
 chart_type_30min=1
 chart_type_day=0
 chart_type_month=0
@@ -21,6 +21,7 @@ p:yval=0
 m30=0
 last_gas=0
 avg_g=0
+; Schutz-Logik
 v_mod=1
 nm="waldy-smarthome.de"
 
@@ -28,58 +29,21 @@ nm="waldy-smarthome.de"
 =>sensor53 r
 is(0 "Jan|Feb|Mär|Apr|Mai|Jun|Jul|Aug|Sep|Okt|Nov|Dez|")
 smlj=0
-=>sensor53 c1 0
-last_gas=0
-GasTotal=zaehler_start
+; Hier setzen wir den echten Startwert direkt in den Treiber
+=>sensor53 c1 %zaehler_start%
+last_gas=sml[1]
 
 #30min
 if wm>0
 then
 wcs <div id="chart30" style="width:400px;"></div>
 wcs <script language="JavaScript">function draw30(){
-if (chart_type_30min==0)
-then
-wcs var data=google.visualization.arrayToDataTable([['Zeit','m3',{role:'style'}],
-m30=int(((hours*60)+mins)/30)+1
-for tmp 1 48 1
-wcs [
-if (tmp%4==1)
-then
-wcs '%int((tmp-1)/2)%h'
-else
-wcs ''
-endif
-wcs ,%g30[tmp]%,
-if (tmp<m30)
-then
-wcs 'green'],
-endif
-if (tmp==m30)
-then
-wcs 'red'],
-endif
-if (tmp>m30)
-then
-wcs 'blue'],
-endif
-next
-wcs ]);
-wcs var chart=new google.visualization.ColumnChart(document.getElementById('chart30'));
-else
 wcs var data=google.visualization.arrayToDataTable([['Zeit','m3'],
 for tmp 1 48 1
-wcs [
-if (tmp%4==1)
-then
-wcs '%int((tmp-1)/2)%h'
-else
-wcs ''
-endif
-wcs ,%g30[tmp]%],
+wcs ['%int((tmp-1)/2)%h',%g30[tmp]%],
 next
 wcs ]);
 wcs var chart=new google.visualization.AreaChart(document.getElementById('chart30'));
-endif
 wcs var options={chartArea:{left:40,width:'86%%'},legend:'none',title:'Tagesverlauf (30 min)',vAxis:{format:'#0.00 m3'},colors:['#2196F3'],areaOpacity:0.2};
 wcs chart.draw(data,options);}google.charts.setOnLoadCallback(draw30);</script>
 endif
@@ -89,35 +53,13 @@ if wm>0
 then
 wcs <div id="day" style="width:400px;"></div>
 wcs <script language="JavaScript">function drawChartD(){
-if (chart_type_day==0)
-then
-wcs var data=google.visualization.arrayToDataTable([['Tag','m3',{role: 'style'}],
-for tmp 1 dcon[-1] 1
-wcs [%tmp%,%dcon[tmp]%,
-if (tmp<day)
-then
-wcs 'green'],
-endif
-if (tmp==day)
-then
-wcs 'red'],
-endif
-if (tmp>day)
-then
-wcs 'blue'],
-endif
-next
-wcs ]);
-wcs var chart=new google.visualization.ColumnChart(document.getElementById('day'));
-else
 wcs var data=google.visualization.arrayToDataTable([['Tag','m3'],
 for tmp 1 dcon[-1] 1
 wcs [%tmp%,%dcon[tmp]%],
 next
 wcs ]);
-wcs var chart=new google.visualization.AreaChart(document.getElementById('day'));
-endif
-wcs var options={chartArea:{left:40,width:'86%%'},legend:'none',title:'Tagesverbräuche (Monat %is[month]%)',vAxis:{format:'# m3'},colors:['#4CAF50'],areaOpacity:0.2};
+wcs var chart=new google.visualization.ColumnChart(document.getElementById('day'));
+wcs var options={chartArea:{left:40,width:'86%%'},legend:'none',title:'Tagesverbräuche',vAxis:{format:'# m3'},colors:['#4CAF50']};
 wcs chart.draw(data,options);}google.charts.setOnLoadCallback(drawChartD);</script>
 endif
 
@@ -126,48 +68,26 @@ if wm>0
 then
 wcs <div id="month" style="width:400px;"></div>
 wcs <script language="JavaScript">function drawChartM(){
-if (chart_type_month==0)
-then
-wcs var data=google.visualization.arrayToDataTable([['Monat','m3',{role: 'style'}],
-for tmp 1 12 1
-wcs ['%is[tmp]%',%mcon[tmp]%,
-if (tmp<month)
-then
-wcs 'green'],
-endif
-if (tmp==month)
-then
-wcs 'red'],
-endif
-if (tmp>month)
-then
-wcs 'blue'],
-endif
-next
-wcs ]);
-wcs var chart=new google.visualization.ColumnChart(document.getElementById('month'));
-else
 wcs var data=google.visualization.arrayToDataTable([['Monat','m3'],
 for tmp 1 12 1
 wcs ['%is[tmp]%',%mcon[tmp]%],
 next
 wcs ]);
-wcs var chart=new google.visualization.AreaChart(document.getElementById('month'));
-endif
-wcs var options={chartArea:{left:40,width:'86%%'},legend:'none',title:'Verbräuche (Jahr %0year%)',vAxis:{format:'# m3'},colors:['#FF9800'],areaOpacity:0.2};
+wcs var chart=new google.visualization.ColumnChart(document.getElementById('month'));
+wcs var options={chartArea:{left:40,width:'86%%'},legend:'none',title:'Monatsverbräuche',vAxis:{format:'# m3'},colors:['#FF9800']};
 wcs chart.draw(data,options);}google.charts.setOnLoadCallback(drawChartM);</script>
 endif
 
 >M 1
-+1,14,c,1,-500,Gas
-; Wir geben hier wieder einen Namen an, damit Tasmota oben etwas anzeigt
-1,1-0:1.8.0*255(1,Impulse,cnt,,0)
++1,14,c,1,-500,Gaszähler
+; Standard-SML Zuweisung (Faktor wird oben über 'factor' gesteuert)
+1,1-0:1.8.0*255(@%factor%,Gesamtverbrauch,m3,total,2)
 
 >S
 if (res==1)
 then
 res=0
-GasTotal=zaehler_start
+GasTotal=sml[1]
 dval=GasTotal
 mval=GasTotal
 yval=GasTotal
@@ -189,7 +109,7 @@ then
 break
 endif
 
-; --- SCHUTZ ---
+; --- DIE SCHUTZ-PRÜFUNG ---
 if (sp(nm 1)==119)
 then
 v_mod=1
@@ -197,15 +117,16 @@ else
 v_mod=0
 endif
 
-if (v_mod==1)
-then
-; GasTotal Berechnung
-GasTotal=zaehler_start+(sml[1]/factor)
-endif
+; Wir holen den Wert vom SML-Treiber
+GasTotal=sml[1]
 
 if (upsecs%10==0)
 then
+; Nur wenn v_mod=1 ist, berechnen wir Zuwächse für die Charts
+if (v_mod==1)
+then
 avg_g+=GasTotal-last_gas
+endif
 last_gas=GasTotal
 endif
 
@@ -214,8 +135,11 @@ then
 hour=hours
 yr=year
 utm=s(2.0(int(uptime/1440)))+"d "+s(2.0(int(uptime/60)%24))+"h "+s(2.0(uptime%60))+"m"
-dcon[day]=GasTotal-dval
-mcon[month]=GasTotal-mval
+
+; Verbräuche werden mit v_mod multipliziert (Schutz-Falle)
+dcon[day]=(GasTotal-dval)*v_mod
+mcon[month]=(GasTotal-mval)*v_mod
+
 m30=int(((hours*60)+mins)/30)+1
 g30[m30]+=avg_g
 avg_g=0
@@ -243,11 +167,10 @@ endif
 bu(save "Gespeichert" "Daten speichern")
 bu(res "Reset läuft..." "Verbrauch zurücksetzen")
 
-; --- ANZEIGE DER WERTE ---
-<b>Aktueller Gaszählerstand:</b> {m} %3GasTotal% m³
-Tagesverbrauch: {m} %2(GasTotal-dval)% m³
-Monatsverbrauch: {m} %2(GasTotal-mval)% m³
-Jahresverbrauch: {m} %2(GasTotal-yval)% m³
+; Anzeige der berechneten Werte (Diese bleiben 0 wenn nm geändert wird)
+Tagesverbrauch: {m} %2(dcon[day])% m3
+Monatsverbrauch: {m} %2(mcon[month])% m3
+Jahresverbrauch: {m} %2(GasTotal-yval)*v_mod% m3
 
 Datum: {m} %s(2.0day)%.%s(2.0month)%.%s(2.0year)% - %s(2.0hours)%:%s(2.0mins)%:%s(2.0secs)%
 Uptime: {m} %utm%
