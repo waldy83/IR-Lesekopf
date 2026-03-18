@@ -1,16 +1,25 @@
 >D 48
 ;============================================================
-; GASZÄHLER-SCRIPT (Historie + Charts) v47
+; GASZÄHLER-SCRIPT (Historie + Charts) v1
 ;============================================================
 ; Basis-Script: ottelo.jimdo.de  |  Modifiziert: waldy
 ;============================================================
 
+; --- EINSTELLUNGEN (Hier anpassen) ---
+; Impuls-Faktor:
+; 100 = 0,01 m³/Imp | 10  = 0,1 m³/Imp | 1  = 1,0 m³/Imp
 factor=100
+
+; Startwert des mechanischen Zählers (z.B. 36489.08)
+; Hinweis: Ohne Komma eingeben
 zaehler_start=0
+
+; --- CHART-TYP AUSWAHL (0 = Balken | 1 = Linie) ---
 chart_type_30min=1
 chart_type_day=0
 chart_type_month=0
 
+; --- INTERNE VARIABLEN (Nicht ändern) ---
 res=0
 save=0
 tmp=0
@@ -167,13 +176,6 @@ endif
 1,1-0:1.8.0*255(@%factor%,Gesamtverbrauch,m3,total,2)
 
 >S
-; --- DER SCHUTZCHECK ---
-; Wir nutzen den Footer-String direkt und prüfen nur das 'w'
-if (sb("waldy" 0)!=119)
-then
-break
-endif
-
 if (res==1)
 then
 res=0
