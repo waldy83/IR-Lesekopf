@@ -1,6 +1,6 @@
 >D 48
 ;============================================================
-; GASZÄHLER-SCRIPT (Historie + Charts)
+; GASZÄHLER-SCRIPT (Historie + Charts) v2
 ; Basis-Script: ottelo.jimdo.de  |  Modifiziert: waldy
 ;============================================================
 
@@ -13,7 +13,7 @@ wp_ok=0
 wp_lock=0
 ;============================================================
 
-; --- EINSTELLUNGEN (Hier anpassen) ---
+; --- EINSTELLUNGEN ---
 factor=100
 zaehler_start=0
 
@@ -116,7 +116,6 @@ endif
 ; --- WRP RUNTIME CHECK ---
 if (wp_lock==1)
 then
-GasTotal=GasTotal
 break
 endif
 
@@ -128,15 +127,9 @@ dval=GasTotal
 mval=GasTotal
 yval=GasTotal
 avg_g=0
-for tmp 1 31 1
-dcon[tmp]=0
-next
-for tmp 1 12 1
-mcon[tmp]=0
-next
-for tmp 1 48 1
-g30[tmp]=0
-next
+for tmp 1 31 1 | dcon[tmp]=0 | next
+for tmp 1 12 1 | mcon[tmp]=0 | next
+for tmp 1 48 1 | g30[tmp]=0 | next
 svars
 print Reset durchgeführt - Zählerstand: %GasTotal%
 endif
@@ -196,11 +189,8 @@ endif
 endif
 
 >W
-if (wp_lock==1)
+if (wp_lock==0)
 then
-$<center><span style="color:#888;font-size:10px">Systemstatus OK</span></center>
-break
-endif
 
 bu(save "Gespeichert" "Daten speichern")
 bu(res "Reset läuft..." "Verbrauch zurücksetzen")
@@ -221,3 +211,5 @@ $<script type="text/javascript">google.charts.load('current',{packages:['corecha
 $<center><span style="font-size:10px;">
 $Original by ottelo.jimdo.de - modified by waldy-smarthome.de<!--91--><br>
 $</span></center></div>
+
+endif
