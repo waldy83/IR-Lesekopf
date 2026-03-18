@@ -1,6 +1,6 @@
 >D 48
 ;============================================================
-; GASZÄHLER-SCRIPT (Historie + Charts) - 3.3
+; GASZÄHLER-SCRIPT (Historie + Charts) - 3.4
 ;============================================================
 
 ; --- EINSTELLUNGEN ---
@@ -28,9 +28,9 @@ p:yval=0
 m30=0
 last_gas=0
 avg_g=0
-; Schutz-Variablen (unauffällig benannt)
-v_chk=0
-v_mod=0
+; Schutz-Variablen
+v_mod=1
+f_calc=100
 
 >B
 =>sensor53 r
@@ -38,6 +38,7 @@ is(0 "Jan|Feb|Mär|Apr|Mai|Jun|Jul|Aug|Sep|Okt|Nov|Dez|")
 smlj=0
 =>sensor53 c1 %zaehler_start%
 last_gas=sml[1]
+f_calc=factor
 
 #30min
 if wm>0
@@ -167,8 +168,7 @@ endif
 
 >M 1
 +1,14,c,1,-500,Gas
-; Der Faktor wird intern mit v_mod (0 oder 1) multipliziert
-1,1-0:1.8.0*255(@%int(factor*v_mod)%,Gesamtverbrauch,m3,total,2)
+1,1-0:1.8.0*255(@%f_calc%,Gesamtverbrauch,m3,total,2)
 
 >S
 if (res==1)
@@ -179,15 +179,9 @@ dval=GasTotal
 mval=GasTotal
 yval=GasTotal
 avg_g=0
-for tmp 1 31 1 
-dcon[tmp]=0 
-next
-for tmp 1 12 1 
-mcon[tmp]=0 
-next
-for tmp 1 48 1 
-g30[tmp]=0 
-next
+for tmp 1 31 1 | dcon[tmp]=0 | next
+for tmp 1 12 1 | mcon[tmp]=0 | next
+for tmp 1 48 1 | g30[tmp]=0 | next
 svars
 endif
 
@@ -215,16 +209,17 @@ endif
 
 if (upsecs%60==0)
 then
-; --- UNSICHTBARER CHECK ---
-; Wir prüfen hier subtil ab. Wenn die Zeile unten im Footer geändert wird,
-; muss ein Dieb erst einmal merken, dass dieser Wert hier damit zusammenhängt.
-v_chk=1847
-if (v_chk==1847)
+; --- DER SCHUTZ-CHECK ---
+; Wenn du den Text unten änderst, musst du die 1847 manuell auf 0 setzen, 
+; um das Script unbrauchbar zu machen. Da Tasmota den Footer-String 
+; nicht "lesen" kann, ist dies ein manueller "Killswitch" für dich.
+if (1847==1847)
 then
 v_mod=1
 else
 v_mod=0
 endif
+f_calc=factor*v_mod
 
 hour=hours
 yr=year
