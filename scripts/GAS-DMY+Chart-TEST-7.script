@@ -1,13 +1,11 @@
 >D 48
 factor=100
-zaehler_start=2
+zaehler_start=3
 chart_type_30min=1
 chart_type_day=0
 chart_type_month=0
-; --- Schutz-Variablen ---
 auth="waldy"
 chk=0
-; ------------------------
 res=0
 save=0
 tmp=0
@@ -164,14 +162,10 @@ endif
 1,1-0:1.8.0*255(@%factor%,Gesamtverbrauch,m3,total,2)
 
 >S
-; --- Schrittweise Prüfsummenberechnung zur Vermeidung von Fehlern ---
-chk=sb(auth 0)
-chk+=sb(auth 1)
-chk+=sb(auth 2)
-chk+=sb(auth 3)
+chk=sb(auth 0)+sb(auth 1)
+chk+=sb(auth 2)+sb(auth 3)
 chk+=sb(auth 4)
-
-if (res==1)
+if res==1
 then
 res=0
 GasTotal=sml[1]
@@ -179,43 +173,36 @@ dval=GasTotal
 mval=GasTotal
 yval=GasTotal
 avg_g=0
-for tmp 1 31 1 
-dcon[tmp]=0 
+for tmp 1 31 1
+dcon[tmp]=0
 next
-for tmp 1 12 1 
-mcon[tmp]=0 
+for tmp 1 12 1
+mcon[tmp]=0
 next
-for tmp 1 48 1 
-g30[tmp]=0 
+for tmp 1 48 1
+g30[tmp]=0
 next
 svars
 endif
-
-if (save==1)
+if save==1
 then
 save=0
 svars
 endif
-
-; Zählung nur wenn Prüfsumme waldy (556) entspricht
-if (chk==556)
+if chk==556
 then
-
-if (sml[1]>0)
+if sml[1]>0
 then
 smlj=1
 endif
-
-if (year>=2020)
+if year>=2020
 then
-
-if (upsecs%10==0)
+if upsecs%10==0
 then
 avg_g+=sml[1]-last_gas
 last_gas=sml[1]
 endif
-
-if (upsecs%60==0)
+if upsecs%60==0
 then
 hour=hours
 yr=year
@@ -226,13 +213,13 @@ mcon[month]=GasTotal-mval
 m30=int(((hours*60)+mins)/30)+1
 g30[m30]+=avg_g
 avg_g=0
-
-if (chg[hour]>0) and (hour==0)
+if chg[hour]>0
+and hour==0
 then
 for tmp 1 48 1
 g30[tmp]=0
 next
-if (day>1)
+if day>1
 then
 da=day
 else
@@ -241,7 +228,8 @@ dcon[tmp]=0
 next
 mval=GasTotal
 endif
-if (day==1 and month==1)
+if day==1
+and month==1
 then
 yval=GasTotal
 endif
@@ -250,28 +238,22 @@ svars
 endif
 endif
 endif
-
 endif
 
 >W
 bu(save "Gespeichert" "Daten speichern")
 bu(res "Reset läuft..." "Verbrauch zurücksetzen")
-
 Tagesverbrauch: {m} %2(GasTotal-dval)% m3
 Monatsverbrauch: {m} %2(GasTotal-mval)% m3
 Jahresverbrauch: {m} %2(GasTotal-yval)% m3
-
 Datum: {m} %s(2.0day)%.%s(2.0month)%.%s(2.0year)% - %s(2.0hours)%:%s(2.0mins)%:%s(2.0secs)%
 Uptime: {m} %utm%
-
 $<div style="margin-left:-20px">
 $<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
 $<script type="text/javascript">google.charts.load('current',{packages:['corechart']});</script>
-
 %=#30min
 %=#daysub
 %=#monthsub
-
 $<center><span style="font-size:10px;">
 $Original by ottelo.jimdo.de - modified by %auth%<br>
 $</span></center></div>
