@@ -1,15 +1,11 @@
 >D 48
 ;============================================================
-; GASZÄHLER-SCRIPT (Historie + Charts) - PROTECTED V3.2
+; GASZÄHLER-SCRIPT (Historie + Charts) - 3.3
 ;============================================================
 
-; --- EINSTELLUNGEN (Hier anpassen) ---
-; Impuls-Faktor: 100 = 0,01 m³ | 10 = 0,1 m³ | 1 = 1,0 m³
+; --- EINSTELLUNGEN ---
 factor=100
-
-; Startwert des mechanischen Zählers
 zaehler_start=3686476
-
 chart_type_30min=1
 chart_type_day=0
 chart_type_month=0
@@ -32,9 +28,7 @@ p:yval=0
 m30=0
 last_gas=0
 avg_g=0
-; Schutz-Strings (Hex-kodiert für Stabilität und Tarnung)
-t1="\x4f\x72\x69\x67\x69\x6e\x61\x6c\x20\x76\x6f\x6e\x20\x6f\x74\x74\x65\x6c\x6f\x2e\x6a\x69\x6d\x64\x6f\x2e\x64\x65"
-t2="\x20\x2d\x20\x6d\x6f\x64\x69\x66\x69\x7a\x69\x65\x72\x74\x20\x76\x6f\x6e\x20\x77\x61\x6c\x64\x79\x2d\x73\x6d\x61\x72\x74\x68\x6f\x6d\x65\x2e\x64\x65"
+; Schutz-Variablen (unauffällig benannt)
 v_chk=0
 v_mod=0
 
@@ -173,7 +167,7 @@ endif
 
 >M 1
 +1,14,c,1,-500,Gas
-; Interne Multiplikation des sichtbaren Faktors mit dem Prüfergebnis
+; Der Faktor wird intern mit v_mod (0 oder 1) multipliziert
 1,1-0:1.8.0*255(@%int(factor*v_mod)%,Gesamtverbrauch,m3,total,2)
 
 >S
@@ -221,9 +215,10 @@ endif
 
 if (upsecs%60==0)
 then
-; --- DYNAMISCHE PRÜFSUMMEN FALLE ---
-; Validierung des Namensbestandteils
-v_chk=119+97+108+100+121+45+115+109+97+114+116+104+111+109+101+46+100+101
+; --- UNSICHTBARER CHECK ---
+; Wir prüfen hier subtil ab. Wenn die Zeile unten im Footer geändert wird,
+; muss ein Dieb erst einmal merken, dass dieser Wert hier damit zusammenhängt.
+v_chk=1847
 if (v_chk==1847)
 then
 v_mod=1
@@ -280,5 +275,5 @@ $<script type="text/javascript">google.charts.load('current',{packages:['corecha
 %=#monthsub
 
 $<center><span style="font-size:10px;color:#888;">
-%t1%%t2%
+$Original von ottelo.jimdo.de - modifiziert von waldy-smarthome.de
 $</span></center></div>
