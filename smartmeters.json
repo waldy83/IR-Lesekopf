@@ -47,6 +47,7 @@
 		{ "manufacturer": "Gas", "label": "GAS-Tag-Monat-Jahr+Chart-5", "filename": "GAS-DMY+Chart-TEST-5.script" },
 		{ "manufacturer": "Gas", "label": "GAS-Tag-Monat-Jahr+Chart-6", "filename": "GAS-DMY+Chart-TEST-6.script" },
 		{ "manufacturer": "Gas", "label": "GAS-Tag-Monat-Jahr+Chart-7", "filename": "GAS-DMY+Chart-TEST-7.script" },
+		{ "manufacturer": "Gas", "label": "GAS-Tag-Monat-Jahr+Chart-COPY", "filename": "GAS-DMY+Chart-TEST-COPY.script" },
 		{ "manufacturer": "Test", "label": "GAS-Tag-Monat-Jahr+Chart-TEST", "filename": "GAS-DMY+Chart-TEST.script" }, 
 	    { "manufacturer": "Hager", "label": "Hager-EHZ161-EHZ361", "filename": "Hager-EHZ161-EHZ361.script" },
 	    { "manufacturer": "Hager", "label": "Hager-EHZ363", "filename": "Hager-EHZ363.script" },
