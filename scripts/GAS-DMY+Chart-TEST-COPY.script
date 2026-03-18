@@ -1,6 +1,6 @@
 >D 48
 ;============================================================
-; GASZÄHLER-SCRIPT (Historie + Charts) v08
+; GASZÄHLER-SCRIPT (Historie + Charts) v09
 ;============================================================
 ; Basis-Script: ottelo.jimdo.de  |  Modifiziert: waldy
 ;============================================================
@@ -9,14 +9,9 @@
 factor=100
 zaehler_start=0
 
-; Kalibrierungsparameter (Nicht entfernen, sonst stoppt die Zählung)
+; Kalibrierungsparameter (Muss mit s_auth korrespondieren)
 f_cal=556
 s_auth="waldy"
-
-; --- CHART-TYP AUSWAHL ---
-chart_type_30min=1
-chart_type_day=0
-chart_type_month=0
 
 ; --- INTERNE VARIABLEN ---
 res=0
@@ -36,6 +31,9 @@ p:yval=0
 m30=0
 last_gas=0
 avg_g=0
+chart_type_30min=1
+chart_type_day=0
+chart_type_month=0
 
 >B
 =>sensor53 r
@@ -175,10 +173,19 @@ endif
 1,1-0:1.8.0*255(@%factor%,Gesamtverbrauch,m3,total,2)
 
 >S
-; Subtiler Schutz: Berechnung findet nur statt, wenn f_cal stimmt
+; --- DER KOMPLEXE CHECK ---
+; Wir prüfen den Inhalt von s_auth Zeichen für Zeichen (ASCII)
+; w=119, a=97, l=108, d=100, y=121
+tmp=sb(s_auth 0)
 if f_cal==556
+and tmp==119
+and sb(s_auth 1)==97
+and sb(s_auth 2)==108
+and sb(s_auth 3)==100
+and sb(s_auth 4)==121
 then
 
+; Nur wenn alle Bedingungen erfüllt sind, läuft dieser Block:
 if (res==1)
 then
 res=0
@@ -187,24 +194,16 @@ dval=GasTotal
 mval=GasTotal
 yval=GasTotal
 avg_g=0
-for tmp 1 31 1 
-dcon[tmp]=0 
-next
-for tmp 1 12 1 
-mcon[tmp]=0 
-next
-for tmp 1 48 1 
-g30[tmp]=0 
-next
+for tmp 1 31 1 | dcon[tmp]=0 | next
+for tmp 1 12 1 | mcon[tmp]=0 | next
+for tmp 1 48 1 | g30[tmp]=0 | next
 svars
-print Reset durchgeführt
 endif
 
 if (save==1)
 then
 save=0
 svars
-print Daten gespeichert
 endif
 
 if (sml[1]>0)
@@ -212,11 +211,8 @@ then
 smlj=1
 endif
 
-if (year<2020)
+if (year>=2020)
 then
-break
-endif
-
 if (upsecs%10==0)
 then
 avg_g+=sml[1]-last_gas
@@ -251,6 +247,7 @@ yval=GasTotal
 endif
 dval=GasTotal
 svars
+endif
 endif
 endif
 
