@@ -1,15 +1,12 @@
 >D 48
-;============================================================
-; GASZÄHLER-SCRIPT (Historie + Charts) - 3.5
-;============================================================
-; Einstellungen
+; --- EINSTELLUNGEN --- 3.6
 factor=100
 zaehler_start=3686476
 chart_type_30min=1
 chart_type_day=0
 chart_type_month=0
 
-; Interne Variablen
+; --- INTERNE VARIABLEN ---
 res=0
 save=0
 tmp=0
@@ -27,21 +24,18 @@ p:yval=0
 m30=0
 last_gas=0
 avg_g=0
-
-; Sicherheits-Variablen
 v_mod=1
-f_calc=100
-; Ändert man hier das "w" am Anfang, stoppt der Zähler
+; Schutz-Variable: Der Name muss mit "w" beginnen
 nm="waldy-smarthome.de"
 
 >B
 =>sensor53 r
 is(0 "Jan|Feb|Mär|Apr|Mai|Jun|Jul|Aug|Sep|Okt|Nov|Dez|")
 smlj=0
-=>sensor53 c1 %zaehler_start%
-last_gas=sml[1]
-; Initialisierung
-f_calc=factor
+; Wir setzen den internen SML-Counter auf 0, um sauber im Script zu rechnen
+=>sensor53 c1 0
+last_gas=0
+GasTotal=zaehler_start
 
 #30min
 if wm>0
@@ -171,14 +165,14 @@ endif
 
 >M 1
 +1,14,c,1,-500,Gas
-; Der Faktor ist nun f_calc, welcher durch die Sicherung gesteuert wird
-1,1-0:1.8.0*255(@%f_calc%,Gesamtverbrauch,m3,total,2)
+; Der Treiber liefert nur noch rohe Impulse an sml[1]
+1,1-0:1.8.0*255(1,Impulse,count,total,0)
 
 >S
 if (res==1)
 then
 res=0
-GasTotal=sml[1]
+GasTotal=zaehler_start
 dval=GasTotal
 mval=GasTotal
 yval=GasTotal
@@ -200,29 +194,33 @@ then
 break
 endif
 
-if (upsecs%10==0)
-then
-avg_g+=sml[1]-last_gas
-last_gas=sml[1]
-endif
-
-if (upsecs%60==0)
-then
-; --- SICHERHEITS-CHECK ---
-; Prüft ob der Name korrekt mit 'w' beginnt
+; --- DER SCHUTZ-MECHANISMUS ---
+; Prüft den ersten Buchstaben von nm (w = ASCII 119)
 if (sp(nm 1)==119)
 then
 v_mod=1
 else
 v_mod=0
 endif
-; Berechnet den aktiven Faktor
-f_calc=factor*v_mod
 
+; GasBerechnung: Nur wenn v_mod auf 1 steht, wird addiert
+if (v_mod==1)
+then
+; Wir berechnen den Stand: Startwert + (Impulse / factor)
+GasTotal=zaehler_start+(sml[1]/factor)
+endif
+
+if (upsecs%10==0)
+then
+avg_g+=GasTotal-last_gas
+last_gas=GasTotal
+endif
+
+if (upsecs%60==0)
+then
 hour=hours
 yr=year
 utm=s(2.0(int(uptime/1440)))+"d "+s(2.0(int(uptime/60)%24))+"h "+s(2.0(uptime%60))+"m"
-GasTotal=sml[1]
 dcon[day]=GasTotal-dval
 mcon[month]=GasTotal-mval
 m30=int(((hours*60)+mins)/30)+1
@@ -252,9 +250,10 @@ endif
 bu(save "Gespeichert" "Daten speichern")
 bu(res "Reset läuft..." "Verbrauch zurücksetzen")
 
-Tagesverbrauch: {m} %2(GasTotal-dval)% m3
-Monatsverbrauch: {m} %2(GasTotal-mval)% m3
-Jahresverbrauch: {m} %2(GasTotal-yval)% m3
+Zählerstand: {m} %3GasTotal% m³
+Tagesverbrauch: {m} %2(GasTotal-dval)% m³
+Monatsverbrauch: {m} %2(GasTotal-mval)% m³
+Jahresverbrauch: {m} %2(GasTotal-yval)% m³
 
 Datum: {m} %s(2.0day)%.%s(2.0month)%.%s(2.0year)% - %s(2.0hours)%:%s(2.0mins)%:%s(2.0secs)%
 Uptime: {m} %utm%
