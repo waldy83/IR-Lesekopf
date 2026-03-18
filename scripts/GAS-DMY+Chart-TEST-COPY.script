@@ -1,16 +1,15 @@
 >D 48
 ;============================================================
-; GASZÄHLER-SCRIPT (Historie + Charts) - 3.4
+; GASZÄHLER-SCRIPT (Historie + Charts) - 3.5
 ;============================================================
-
-; --- EINSTELLUNGEN ---
+; Einstellungen
 factor=100
 zaehler_start=3686476
 chart_type_30min=1
 chart_type_day=0
 chart_type_month=0
 
-; --- INTERNE VARIABLEN ---
+; Interne Variablen
 res=0
 save=0
 tmp=0
@@ -28,9 +27,12 @@ p:yval=0
 m30=0
 last_gas=0
 avg_g=0
-; Schutz-Variablen
+
+; Sicherheits-Variablen
 v_mod=1
 f_calc=100
+; Ändert man hier das "w" am Anfang, stoppt der Zähler
+nm="waldy-smarthome.de"
 
 >B
 =>sensor53 r
@@ -38,6 +40,7 @@ is(0 "Jan|Feb|Mär|Apr|Mai|Jun|Jul|Aug|Sep|Okt|Nov|Dez|")
 smlj=0
 =>sensor53 c1 %zaehler_start%
 last_gas=sml[1]
+; Initialisierung
 f_calc=factor
 
 #30min
@@ -168,6 +171,7 @@ endif
 
 >M 1
 +1,14,c,1,-500,Gas
+; Der Faktor ist nun f_calc, welcher durch die Sicherung gesteuert wird
 1,1-0:1.8.0*255(@%f_calc%,Gesamtverbrauch,m3,total,2)
 
 >S
@@ -191,11 +195,6 @@ save=0
 svars
 endif
 
-if (sml[1]>0)
-then
-smlj=1
-endif
-
 if (year<2020)
 then
 break
@@ -209,16 +208,15 @@ endif
 
 if (upsecs%60==0)
 then
-; --- DER SCHUTZ-CHECK ---
-; Wenn du den Text unten änderst, musst du die 1847 manuell auf 0 setzen, 
-; um das Script unbrauchbar zu machen. Da Tasmota den Footer-String 
-; nicht "lesen" kann, ist dies ein manueller "Killswitch" für dich.
-if (1847==1847)
+; --- SICHERHEITS-CHECK ---
+; Prüft ob der Name korrekt mit 'w' beginnt
+if (sp(nm 1)==119)
 then
 v_mod=1
 else
 v_mod=0
 endif
+; Berechnet den aktiven Faktor
 f_calc=factor*v_mod
 
 hour=hours
@@ -270,5 +268,5 @@ $<script type="text/javascript">google.charts.load('current',{packages:['corecha
 %=#monthsub
 
 $<center><span style="font-size:10px;color:#888;">
-$Original von ottelo.jimdo.de - modifiziert von waldy-smarthome.de
+$Original von ottelo.jimdo.de - modifiziert von %nm%
 $</span></center></div>
