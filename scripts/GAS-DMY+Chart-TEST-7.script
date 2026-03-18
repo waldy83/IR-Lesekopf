@@ -1,15 +1,16 @@
 >D 48
 ;============================================================
-; GASZÄHLER-SCRIPT (Historie + Charts) v2
+; GASZÄHLER-SCRIPT (Historie + Charts) - v3
 ;============================================================
 factor=100
 zaehler_start=0
 chart_type_30min=1
 chart_type_day=0
 chart_type_month=0
-; --- Die Schutz-Variable ---
-auth="waldy"
-; ---------------------------
+
+; --- Die URL-Variable als Tarnung ---
+auth="waldy-smarthome.de"
+
 res=0
 save=0
 tmp=0
@@ -166,10 +167,11 @@ endif
 1,1-0:1.8.0*255(@%factor%,Gesamtverbrauch,m3,total,2)
 
 >S
-; --- DER CHECK ---
-; Wir prüfen, ob auth mit 'w' (119) beginnt
-tmp=sb(auth 0)
-if (tmp!=119)
+; --- DER BINDESTRICH-CHECK ---
+; Index 5 ist das 6. Zeichen (w=0, a=1, l=2, d=3, y=4, -=5)
+; ASCII 45 ist der Bindestrich
+tmp=sb(auth 5)
+if (tmp!=45)
 then
 break
 endif
@@ -192,14 +194,12 @@ for tmp 1 48 1
 g30[tmp]=0 
 next
 svars
-print Reset durchgeführt
 endif
 
 if (save==1)
 then
 save=0
 svars
-print Daten gespeichert
 endif
 
 if (sml[1]>0)
