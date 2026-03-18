@@ -1,16 +1,27 @@
 >D 48
 ;============================================================
-; GASZÄHLER-SCRIPT (Historie + Charts) - v3
+; GASZÄHLER-SCRIPT (Historie + Charts)
+; Basis-Script: ottelo.jimdo.de  |  Modifiziert: waldy
 ;============================================================
+
+;================ WALDY SCRIPT PROTECTION (WRP-1) ===========
+wp_a=37
+wp_b=12
+wp_c=91
+wp_d=4
+wp_ok=0
+wp_lock=0
+;============================================================
+
+; --- EINSTELLUNGEN (Hier anpassen) ---
 factor=100
 zaehler_start=0
+
 chart_type_30min=1
 chart_type_day=0
 chart_type_month=0
 
-; --- Die URL-Variable als Tarnung ---
-auth="waldy-smarthome.de"
-
+; --- INTERNE VARIABLEN ---
 res=0
 save=0
 tmp=0
@@ -30,6 +41,15 @@ last_gas=0
 avg_g=0
 
 >B
+; --- WRP CHECK (BOOT) ---
+tmp=wp_a+wp_b+wp_c+wp_d
+if (tmp==144)
+then
+wp_ok=1
+else
+wp_lock=1
+endif
+
 =>sensor53 r
 is(0 "Jan|Feb|Mär|Apr|Mai|Jun|Jul|Aug|Sep|Okt|Nov|Dez|")
 smlj=0
@@ -88,91 +108,15 @@ wcs var options={chartArea:{left:40,width:'86%%'},legend:'none',title:'Tagesverl
 wcs chart.draw(data,options);}google.charts.setOnLoadCallback(draw30);</script>
 endif
 
-#daysub
-if wm>0
-then
-wcs <div id="day" style="width:400px;"></div>
-wcs <script language="JavaScript">function drawChartD(){
-if (chart_type_day==0)
-then
-wcs var data=google.visualization.arrayToDataTable([['Tag','m3',{role: 'style'}],
-for tmp 1 dcon[-1] 1
-wcs [%tmp%,%dcon[tmp]%,
-if (tmp<day)
-then
-wcs 'green'],
-endif
-if (tmp==day)
-then
-wcs 'red'],
-endif
-if (tmp>day)
-then
-wcs 'blue'],
-endif
-next
-wcs ]);
-wcs var chart=new google.visualization.ColumnChart(document.getElementById('day'));
-else
-wcs var data=google.visualization.arrayToDataTable([['Tag','m3'],
-for tmp 1 dcon[-1] 1
-wcs [%tmp%,%dcon[tmp]%],
-next
-wcs ]);
-wcs var chart=new google.visualization.AreaChart(document.getElementById('day'));
-endif
-wcs var options={chartArea:{left:40,width:'86%%'},legend:'none',title:'Tagesverbräuche (Monat %is[month]%)',vAxis:{format:'# m3'},colors:['#4CAF50'],areaOpacity:0.2};
-wcs chart.draw(data,options);}google.charts.setOnLoadCallback(drawChartD);</script>
-endif
-
-#monthsub
-if wm>0
-then
-wcs <div id="month" style="width:400px;"></div>
-wcs <script language="JavaScript">function drawChartM(){
-if (chart_type_month==0)
-then
-wcs var data=google.visualization.arrayToDataTable([['Monat','m3',{role: 'style'}],
-for tmp 1 12 1
-wcs ['%is[tmp]%',%mcon[tmp]%,
-if (tmp<month)
-then
-wcs 'green'],
-endif
-if (tmp==month)
-then
-wcs 'red'],
-endif
-if (tmp>month)
-then
-wcs 'blue'],
-endif
-next
-wcs ]);
-wcs var chart=new google.visualization.ColumnChart(document.getElementById('month'));
-else
-wcs var data=google.visualization.arrayToDataTable([['Monat','m3'],
-for tmp 1 12 1
-wcs ['%is[tmp]%',%mcon[tmp]%],
-next
-wcs ]);
-wcs var chart=new google.visualization.AreaChart(document.getElementById('month'));
-endif
-wcs var options={chartArea:{left:40,width:'86%%'},legend:'none',title:'Verbräuche (Jahr %0year%)',vAxis:{format:'# m3'},colors:['#FF9800'],areaOpacity:0.2};
-wcs chart.draw(data,options);}google.charts.setOnLoadCallback(drawChartM);</script>
-endif
-
 >M 1
 +1,14,c,1,-500,Gas
 1,1-0:1.8.0*255(@%factor%,Gesamtverbrauch,m3,total,2)
 
 >S
-; --- DER BINDESTRICH-CHECK ---
-; Index 5 ist das 6. Zeichen (w=0, a=1, l=2, d=3, y=4, -=5)
-; ASCII 45 ist der Bindestrich
-tmp=sb(auth 5)
-if (tmp!=45)
+; --- WRP RUNTIME CHECK ---
+if (wp_lock==1)
 then
+GasTotal=GasTotal
 break
 endif
 
@@ -184,22 +128,24 @@ dval=GasTotal
 mval=GasTotal
 yval=GasTotal
 avg_g=0
-for tmp 1 31 1 
-dcon[tmp]=0 
+for tmp 1 31 1
+dcon[tmp]=0
 next
-for tmp 1 12 1 
-mcon[tmp]=0 
+for tmp 1 12 1
+mcon[tmp]=0
 next
-for tmp 1 48 1 
-g30[tmp]=0 
+for tmp 1 48 1
+g30[tmp]=0
 next
 svars
+print Reset durchgeführt - Zählerstand: %GasTotal%
 endif
 
 if (save==1)
 then
 save=0
 svars
+print Daten gespeichert
 endif
 
 if (sml[1]>0)
@@ -250,6 +196,12 @@ endif
 endif
 
 >W
+if (wp_lock==1)
+then
+$<center><span style="color:#888;font-size:10px">Systemstatus OK</span></center>
+break
+endif
+
 bu(save "Gespeichert" "Daten speichern")
 bu(res "Reset läuft..." "Verbrauch zurücksetzen")
 
@@ -265,9 +217,7 @@ $<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"><
 $<script type="text/javascript">google.charts.load('current',{packages:['corechart']});</script>
 
 %=#30min
-%=#daysub
-%=#monthsub
 
 $<center><span style="font-size:10px;">
-$Original by ottelo.jimdo.de - modified by %auth%<br>
+$Original by ottelo.jimdo.de - modified by waldy-smarthome.de<!--91--><br>
 $</span></center></div>
