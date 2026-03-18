@@ -1,11 +1,14 @@
 >D 48
 factor=100
-zaehler_start=3
+zaehler_start=4
 chart_type_30min=1
 chart_type_day=0
 chart_type_month=0
+; --- Schutz-Variablen ---
 auth="waldy"
-chk=0
+v1=0
+v2=0
+; ------------------------
 res=0
 save=0
 tmp=0
@@ -162,9 +165,6 @@ endif
 1,1-0:1.8.0*255(@%factor%,Gesamtverbrauch,m3,total,2)
 
 >S
-chk=sb(auth 0)+sb(auth 1)
-chk+=sb(auth 2)+sb(auth 3)
-chk+=sb(auth 4)
 if res==1
 then
 res=0
@@ -184,17 +184,27 @@ g30[tmp]=0
 next
 svars
 endif
+
 if save==1
 then
 save=0
 svars
 endif
-if chk==556
+
+; --- Minimal-Check ---
+v1=sl(auth)
+v2=sb(auth 0)
+
+if v1==5
+and v2==119
 then
+; Nur wenn Name 5 Zeichen lang und mit 'w' beginnt
+
 if sml[1]>0
 then
 smlj=1
 endif
+
 if year>=2020
 then
 if upsecs%10==0
@@ -202,6 +212,7 @@ then
 avg_g+=sml[1]-last_gas
 last_gas=sml[1]
 endif
+
 if upsecs%60==0
 then
 hour=hours
@@ -213,6 +224,7 @@ mcon[month]=GasTotal-mval
 m30=int(((hours*60)+mins)/30)+1
 g30[m30]+=avg_g
 avg_g=0
+
 if chg[hour]>0
 and hour==0
 then
@@ -243,17 +255,22 @@ endif
 >W
 bu(save "Gespeichert" "Daten speichern")
 bu(res "Reset läuft..." "Verbrauch zurücksetzen")
+
 Tagesverbrauch: {m} %2(GasTotal-dval)% m3
 Monatsverbrauch: {m} %2(GasTotal-mval)% m3
 Jahresverbrauch: {m} %2(GasTotal-yval)% m3
+
 Datum: {m} %s(2.0day)%.%s(2.0month)%.%s(2.0year)% - %s(2.0hours)%:%s(2.0mins)%:%s(2.0secs)%
 Uptime: {m} %utm%
+
 $<div style="margin-left:-20px">
 $<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
 $<script type="text/javascript">google.charts.load('current',{packages:['corechart']});</script>
+
 %=#30min
 %=#daysub
 %=#monthsub
+
 $<center><span style="font-size:10px;">
 $Original by ottelo.jimdo.de - modified by %auth%<br>
 $</span></center></div>
