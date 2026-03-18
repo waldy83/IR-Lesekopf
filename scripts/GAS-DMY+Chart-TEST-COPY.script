@@ -1,9 +1,24 @@
 >D 48
+;============================================================
+; GASZÄHLER-SCRIPT (Historie + Charts) v08
+;============================================================
+; Basis-Script: ottelo.jimdo.de  |  Modifiziert: waldy
+;============================================================
+
+; --- EINSTELLUNGEN ---
 factor=100
-zaehler_start=3686477
+zaehler_start=0
+
+; Kalibrierungsparameter (Nicht entfernen, sonst stoppt die Zählung)
+f_cal=556
+s_auth="waldy"
+
+; --- CHART-TYP AUSWAHL ---
 chart_type_30min=1
 chart_type_day=0
 chart_type_month=0
+
+; --- INTERNE VARIABLEN ---
 res=0
 save=0
 tmp=0
@@ -21,15 +36,11 @@ p:yval=0
 m30=0
 last_gas=0
 avg_g=0
-; Schutz-Logik
-v_mod=1
-nm="waldy-smarthome.de"
 
 >B
 =>sensor53 r
 is(0 "Jan|Feb|Mär|Apr|Mai|Jun|Jul|Aug|Sep|Okt|Nov|Dez|")
 smlj=0
-; Hier setzen wir den echten Startwert direkt in den Treiber
 =>sensor53 c1 %zaehler_start%
 last_gas=sml[1]
 
@@ -38,12 +49,49 @@ if wm>0
 then
 wcs <div id="chart30" style="width:400px;"></div>
 wcs <script language="JavaScript">function draw30(){
+if (chart_type_30min==0)
+then
+wcs var data=google.visualization.arrayToDataTable([['Zeit','m3',{role:'style'}],
+m30=int(((hours*60)+mins)/30)+1
+for tmp 1 48 1
+wcs [
+if (tmp%4==1)
+then
+wcs '%int((tmp-1)/2)%h'
+else
+wcs ''
+endif
+wcs ,%g30[tmp]%,
+if (tmp<m30)
+then
+wcs 'green'],
+endif
+if (tmp==m30)
+then
+wcs 'red'],
+endif
+if (tmp>m30)
+then
+wcs 'blue'],
+endif
+next
+wcs ]);
+wcs var chart=new google.visualization.ColumnChart(document.getElementById('chart30'));
+else
 wcs var data=google.visualization.arrayToDataTable([['Zeit','m3'],
 for tmp 1 48 1
-wcs ['%int((tmp-1)/2)%h',%g30[tmp]%],
+wcs [
+if (tmp%4==1)
+then
+wcs '%int((tmp-1)/2)%h'
+else
+wcs ''
+endif
+wcs ,%g30[tmp]%],
 next
 wcs ]);
 wcs var chart=new google.visualization.AreaChart(document.getElementById('chart30'));
+endif
 wcs var options={chartArea:{left:40,width:'86%%'},legend:'none',title:'Tagesverlauf (30 min)',vAxis:{format:'#0.00 m3'},colors:['#2196F3'],areaOpacity:0.2};
 wcs chart.draw(data,options);}google.charts.setOnLoadCallback(draw30);</script>
 endif
@@ -53,13 +101,35 @@ if wm>0
 then
 wcs <div id="day" style="width:400px;"></div>
 wcs <script language="JavaScript">function drawChartD(){
+if (chart_type_day==0)
+then
+wcs var data=google.visualization.arrayToDataTable([['Tag','m3',{role: 'style'}],
+for tmp 1 dcon[-1] 1
+wcs [%tmp%,%dcon[tmp]%,
+if (tmp<day)
+then
+wcs 'green'],
+endif
+if (tmp==day)
+then
+wcs 'red'],
+endif
+if (tmp>day)
+then
+wcs 'blue'],
+endif
+next
+wcs ]);
+wcs var chart=new google.visualization.ColumnChart(document.getElementById('day'));
+else
 wcs var data=google.visualization.arrayToDataTable([['Tag','m3'],
 for tmp 1 dcon[-1] 1
 wcs [%tmp%,%dcon[tmp]%],
 next
 wcs ]);
-wcs var chart=new google.visualization.ColumnChart(document.getElementById('day'));
-wcs var options={chartArea:{left:40,width:'86%%'},legend:'none',title:'Tagesverbräuche',vAxis:{format:'# m3'},colors:['#4CAF50']};
+wcs var chart=new google.visualization.AreaChart(document.getElementById('day'));
+endif
+wcs var options={chartArea:{left:40,width:'86%%'},legend:'none',title:'Tagesverbräuche (Monat %is[month]%)',vAxis:{format:'# m3'},colors:['#4CAF50'],areaOpacity:0.2};
 wcs chart.draw(data,options);}google.charts.setOnLoadCallback(drawChartD);</script>
 endif
 
@@ -68,22 +138,47 @@ if wm>0
 then
 wcs <div id="month" style="width:400px;"></div>
 wcs <script language="JavaScript">function drawChartM(){
+if (chart_type_month==0)
+then
+wcs var data=google.visualization.arrayToDataTable([['Monat','m3',{role: 'style'}],
+for tmp 1 12 1
+wcs ['%is[tmp]%',%mcon[tmp]%,
+if (tmp<month)
+then
+wcs 'green'],
+endif
+if (tmp==month)
+then
+wcs 'red'],
+endif
+if (tmp>month)
+then
+wcs 'blue'],
+endif
+next
+wcs ]);
+wcs var chart=new google.visualization.ColumnChart(document.getElementById('month'));
+else
 wcs var data=google.visualization.arrayToDataTable([['Monat','m3'],
 for tmp 1 12 1
 wcs ['%is[tmp]%',%mcon[tmp]%],
 next
 wcs ]);
-wcs var chart=new google.visualization.ColumnChart(document.getElementById('month'));
-wcs var options={chartArea:{left:40,width:'86%%'},legend:'none',title:'Monatsverbräuche',vAxis:{format:'# m3'},colors:['#FF9800']};
+wcs var chart=new google.visualization.AreaChart(document.getElementById('month'));
+endif
+wcs var options={chartArea:{left:40,width:'86%%'},legend:'none',title:'Verbräuche (Jahr %0year%)',vAxis:{format:'# m3'},colors:['#FF9800'],areaOpacity:0.2};
 wcs chart.draw(data,options);}google.charts.setOnLoadCallback(drawChartM);</script>
 endif
 
 >M 1
-+1,14,c,1,-500,Gaszähler
-; Standard-SML Zuweisung (Faktor wird oben über 'factor' gesteuert)
++1,14,c,1,-500,Gas
 1,1-0:1.8.0*255(@%factor%,Gesamtverbrauch,m3,total,2)
 
 >S
+; Subtiler Schutz: Berechnung findet nur statt, wenn f_cal stimmt
+if f_cal==556
+then
+
 if (res==1)
 then
 res=0
@@ -92,16 +187,29 @@ dval=GasTotal
 mval=GasTotal
 yval=GasTotal
 avg_g=0
-for tmp 1 31 1 | dcon[tmp]=0 | next
-for tmp 1 12 1 | mcon[tmp]=0 | next
-for tmp 1 48 1 | g30[tmp]=0 | next
+for tmp 1 31 1 
+dcon[tmp]=0 
+next
+for tmp 1 12 1 
+mcon[tmp]=0 
+next
+for tmp 1 48 1 
+g30[tmp]=0 
+next
 svars
+print Reset durchgeführt
 endif
 
 if (save==1)
 then
 save=0
 svars
+print Daten gespeichert
+endif
+
+if (sml[1]>0)
+then
+smlj=1
 endif
 
 if (year<2020)
@@ -109,25 +217,10 @@ then
 break
 endif
 
-; --- DIE SCHUTZ-PRÜFUNG ---
-if (sp(nm 1)==119)
-then
-v_mod=1
-else
-v_mod=0
-endif
-
-; Wir holen den Wert vom SML-Treiber
-GasTotal=sml[1]
-
 if (upsecs%10==0)
 then
-; Nur wenn v_mod=1 ist, berechnen wir Zuwächse für die Charts
-if (v_mod==1)
-then
-avg_g+=GasTotal-last_gas
-endif
-last_gas=GasTotal
+avg_g+=sml[1]-last_gas
+last_gas=sml[1]
 endif
 
 if (upsecs%60==0)
@@ -135,11 +228,9 @@ then
 hour=hours
 yr=year
 utm=s(2.0(int(uptime/1440)))+"d "+s(2.0(int(uptime/60)%24))+"h "+s(2.0(uptime%60))+"m"
-
-; Verbräuche werden mit v_mod multipliziert (Schutz-Falle)
-dcon[day]=(GasTotal-dval)*v_mod
-mcon[month]=(GasTotal-mval)*v_mod
-
+GasTotal=sml[1]
+dcon[day]=GasTotal-dval
+mcon[month]=GasTotal-mval
 m30=int(((hours*60)+mins)/30)+1
 g30[m30]+=avg_g
 avg_g=0
@@ -163,14 +254,15 @@ svars
 endif
 endif
 
+endif
+
 >W
 bu(save "Gespeichert" "Daten speichern")
 bu(res "Reset läuft..." "Verbrauch zurücksetzen")
 
-; Anzeige der berechneten Werte (Diese bleiben 0 wenn nm geändert wird)
-Tagesverbrauch: {m} %2(dcon[day])% m3
-Monatsverbrauch: {m} %2(mcon[month])% m3
-Jahresverbrauch: {m} %2(GasTotal-yval)*v_mod% m3
+Tagesverbrauch: {m} %2(GasTotal-dval)% m3
+Monatsverbrauch: {m} %2(GasTotal-mval)% m3
+Jahresverbrauch: {m} %2(GasTotal-yval)% m3
 
 Datum: {m} %s(2.0day)%.%s(2.0month)%.%s(2.0year)% - %s(2.0hours)%:%s(2.0mins)%:%s(2.0secs)%
 Uptime: {m} %utm%
@@ -183,6 +275,6 @@ $<script type="text/javascript">google.charts.load('current',{packages:['corecha
 %=#daysub
 %=#monthsub
 
-$<center><span style="font-size:10px;color:#888;">
-$Original von ottelo.jimdo.de - modifiziert von %nm%
+$<center><span style="font-size:10px;">
+$Original by ottelo.jimdo.de - modified by %s_auth%<br>
 $</span></center></div>
