@@ -1,19 +1,11 @@
 >D 48
 ;============================================================
-; GASZÄHLER-SCRIPT (Historie + Charts) v09
+; GASZÄHLER-SCRIPT (Historie + Charts) v10
 ;============================================================
-; Basis-Script: ottelo.jimdo.de  |  Modifiziert: waldy
-;============================================================
-
-; --- EINSTELLUNGEN ---
 factor=100
 zaehler_start=0
-
-; Kalibrierungsparameter (Muss mit s_auth korrespondieren)
 f_cal=556
 s_auth="waldy"
-
-; --- INTERNE VARIABLEN ---
 res=0
 save=0
 tmp=0
@@ -173,9 +165,6 @@ endif
 1,1-0:1.8.0*255(@%factor%,Gesamtverbrauch,m3,total,2)
 
 >S
-; --- DER KOMPLEXE CHECK ---
-; Wir prüfen den Inhalt von s_auth Zeichen für Zeichen (ASCII)
-; w=119, a=97, l=108, d=100, y=121
 tmp=sb(s_auth 0)
 if f_cal==556
 and tmp==119
@@ -184,9 +173,9 @@ and sb(s_auth 2)==108
 and sb(s_auth 3)==100
 and sb(s_auth 4)==121
 then
+; Schutz aktiv - Zählung läuft
 
-; Nur wenn alle Bedingungen erfüllt sind, läuft dieser Block:
-if (res==1)
+if res==1
 then
 res=0
 GasTotal=sml[1]
@@ -194,32 +183,38 @@ dval=GasTotal
 mval=GasTotal
 yval=GasTotal
 avg_g=0
-for tmp 1 31 1 | dcon[tmp]=0 | next
-for tmp 1 12 1 | mcon[tmp]=0 | next
-for tmp 1 48 1 | g30[tmp]=0 | next
+for tmp 1 31 1 
+dcon[tmp]=0 
+next
+for tmp 1 12 1 
+mcon[tmp]=0 
+next
+for tmp 1 48 1 
+g30[tmp]=0 
+next
 svars
 endif
 
-if (save==1)
+if save==1
 then
 save=0
 svars
 endif
 
-if (sml[1]>0)
+if sml[1]>0
 then
 smlj=1
 endif
 
-if (year>=2020)
+if year>=2020
 then
-if (upsecs%10==0)
+if upsecs%10==0
 then
 avg_g+=sml[1]-last_gas
 last_gas=sml[1]
 endif
 
-if (upsecs%60==0)
+if upsecs%60==0
 then
 hour=hours
 yr=year
@@ -231,17 +226,23 @@ m30=int(((hours*60)+mins)/30)+1
 g30[m30]+=avg_g
 avg_g=0
 
-if ((chg[hour]>0) and (hour==0))
+if chg[hour]>0
+and hour==0
 then
-for tmp 1 48 1 | g30[tmp]=0 | next
-if (day>1)
+for tmp 1 48 1 
+g30[tmp]=0 
+next
+if day>1
 then
 da=day
 else
-for tmp (da+1) 31 1 | dcon[tmp]=0 | next
+for tmp (da+1) 31 1 
+dcon[tmp]=0 
+next
 mval=GasTotal
 endif
-if (day==1 and month==1)
+if day==1
+and month==1
 then
 yval=GasTotal
 endif
