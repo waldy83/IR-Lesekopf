@@ -1,12 +1,9 @@
 >D 48
-; --- EINSTELLUNGEN --- 3.6
 factor=100
 zaehler_start=3686476
 chart_type_30min=1
 chart_type_day=0
 chart_type_month=0
-
-; --- INTERNE VARIABLEN ---
 res=0
 save=0
 tmp=0
@@ -25,14 +22,12 @@ m30=0
 last_gas=0
 avg_g=0
 v_mod=1
-; Schutz-Variable: Der Name muss mit "w" beginnen
 nm="waldy-smarthome.de"
 
 >B
 =>sensor53 r
 is(0 "Jan|Feb|Mär|Apr|Mai|Jun|Jul|Aug|Sep|Okt|Nov|Dez|")
 smlj=0
-; Wir setzen den internen SML-Counter auf 0, um sauber im Script zu rechnen
 =>sensor53 c1 0
 last_gas=0
 GasTotal=zaehler_start
@@ -165,8 +160,8 @@ endif
 
 >M 1
 +1,14,c,1,-500,Gas
-; Der Treiber liefert nur noch rohe Impulse an sml[1]
-1,1-0:1.8.0*255(1,Impulse,count,total,0)
+; Wir geben hier wieder einen Namen an, damit Tasmota oben etwas anzeigt
+1,1-0:1.8.0*255(1,Impulse,cnt,,0)
 
 >S
 if (res==1)
@@ -194,8 +189,7 @@ then
 break
 endif
 
-; --- DER SCHUTZ-MECHANISMUS ---
-; Prüft den ersten Buchstaben von nm (w = ASCII 119)
+; --- SCHUTZ ---
 if (sp(nm 1)==119)
 then
 v_mod=1
@@ -203,10 +197,9 @@ else
 v_mod=0
 endif
 
-; GasBerechnung: Nur wenn v_mod auf 1 steht, wird addiert
 if (v_mod==1)
 then
-; Wir berechnen den Stand: Startwert + (Impulse / factor)
+; GasTotal Berechnung
 GasTotal=zaehler_start+(sml[1]/factor)
 endif
 
@@ -250,7 +243,8 @@ endif
 bu(save "Gespeichert" "Daten speichern")
 bu(res "Reset läuft..." "Verbrauch zurücksetzen")
 
-Zählerstand: {m} %3GasTotal% m³
+; --- ANZEIGE DER WERTE ---
+<b>Aktueller Gaszählerstand:</b> {m} %3GasTotal% m³
 Tagesverbrauch: {m} %2(GasTotal-dval)% m³
 Monatsverbrauch: {m} %2(GasTotal-mval)% m³
 Jahresverbrauch: {m} %2(GasTotal-yval)% m³
