@@ -1,7 +1,4 @@
 >D 48
-;============================================================
-; GASZÄHLER-SCRIPT (Historie + Charts) v10
-;============================================================
 factor=100
 zaehler_start=0
 f_cal=556
@@ -165,16 +162,6 @@ endif
 1,1-0:1.8.0*255(@%factor%,Gesamtverbrauch,m3,total,2)
 
 >S
-tmp=sb(s_auth 0)
-if f_cal==556
-and tmp==119
-and sb(s_auth 1)==97
-and sb(s_auth 2)==108
-and sb(s_auth 3)==100
-and sb(s_auth 4)==121
-then
-; Schutz aktiv - Zählung läuft
-
 if res==1
 then
 res=0
@@ -183,23 +170,35 @@ dval=GasTotal
 mval=GasTotal
 yval=GasTotal
 avg_g=0
-for tmp 1 31 1 
-dcon[tmp]=0 
+for tmp 1 31 1
+dcon[tmp]=0
 next
-for tmp 1 12 1 
-mcon[tmp]=0 
+for tmp 1 12 1
+mcon[tmp]=0
 next
-for tmp 1 48 1 
-g30[tmp]=0 
+for tmp 1 48 1
+g30[tmp]=0
 next
 svars
+print Reset durchgeführt
 endif
 
 if save==1
 then
 save=0
 svars
+print Daten gespeichert
 endif
+
+tmp=sb(s_auth 0)
+if f_cal==556
+and tmp==119
+and sb(s_auth 1)==97
+and sb(s_auth 2)==108
+and sb(s_auth 3)==100
+and sb(s_auth 4)==121
+then
+; Schutz OK
 
 if sml[1]>0
 then
@@ -229,15 +228,15 @@ avg_g=0
 if chg[hour]>0
 and hour==0
 then
-for tmp 1 48 1 
-g30[tmp]=0 
+for tmp 1 48 1
+g30[tmp]=0
 next
 if day>1
 then
 da=day
 else
-for tmp (da+1) 31 1 
-dcon[tmp]=0 
+for tmp (da+1) 31 1
+dcon[tmp]=0
 next
 mval=GasTotal
 endif
@@ -251,7 +250,6 @@ svars
 endif
 endif
 endif
-
 endif
 
 >W
