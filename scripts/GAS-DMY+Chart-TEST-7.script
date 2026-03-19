@@ -1,6 +1,6 @@
 >D 48
 ;============================================================
-; GASZÄHLER-SCRIPT (Historie + Charts) v2
+; GASZÄHLER-SCRIPT (Historie + Charts) v3
 ; Basis-Script: ottelo.jimdo.de  |  Modifiziert: waldy
 ;============================================================
 
@@ -9,7 +9,6 @@ wp_a=37
 wp_b=12
 wp_c=91
 wp_d=4
-wp_ok=0
 wp_lock=0
 ;============================================================
 
@@ -43,10 +42,8 @@ avg_g=0
 >B
 ; --- WRP CHECK (BOOT) ---
 tmp=wp_a+wp_b+wp_c+wp_d
-if (tmp==144)
+if (tmp!=144)
 then
-wp_ok=1
-else
 wp_lock=1
 endif
 
@@ -113,7 +110,7 @@ endif
 1,1-0:1.8.0*255(@%factor%,Gesamtverbrauch,m3,total,2)
 
 >S
-; --- WRP RUNTIME CHECK ---
+; --- WRP RUNTIME LOCK ---
 if (wp_lock==1)
 then
 break
@@ -189,9 +186,6 @@ endif
 endif
 
 >W
-if (wp_lock==0)
-then
-
 bu(save "Gespeichert" "Daten speichern")
 bu(res "Reset läuft..." "Verbrauch zurücksetzen")
 
@@ -211,5 +205,3 @@ $<script type="text/javascript">google.charts.load('current',{packages:['corecha
 $<center><span style="font-size:10px;">
 $Original by ottelo.jimdo.de - modified by waldy-smarthome.de<!--91--><br>
 $</span></center></div>
-
-endif
