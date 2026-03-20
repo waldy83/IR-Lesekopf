@@ -1,6 +1,6 @@
 >D 48
 ;============================================================
-; GASZÄHLER-SCRIPT (Historie + Charts) v8
+; GASZÄHLER-SCRIPT (Historie + Charts) v9
 ;============================================================
 ; Basis-Script: ottelo.jimdo.de  |  Modifiziert: waldy
 ;============================================================
@@ -102,12 +102,33 @@ endif
 
 >S
 
-; -------- SIGNATUR INIT (läuft nur einmal) --------
+; -------- SIGNATURCHECK (läuft nur einmal) --------
 if (sig_init==0)
 then
 sig_init=1
+tmp=0
 
-if (sig=="waldy-smarthome.de")
+if (mid(sig,1,1)=="w")
+then
+tmp+=1
+endif
+
+if (mid(sig,3,1)=="l")
+then
+tmp+=2
+endif
+
+if (mid(sig,6,1)=="-")
+then
+tmp+=4
+endif
+
+if (mid(sig,16,1)==".")
+then
+tmp+=8
+endif
+
+if (tmp==15)
 then
 sig_ok=1
 else
