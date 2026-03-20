@@ -15,7 +15,7 @@ chart_type_month=0
 
 ; --- SIGNATUR ---
 sig="waldy-smarthome.de"
-sid=301
+sid=18
 sid_chk=0
 
 ; --- INTERNE VARIABLEN ---
@@ -46,11 +46,11 @@ last_gas=sml[1]
 
 ; -------- SIGNATURCHECK --------
 sid_chk=0
-sid_chk+=factor
-sid_chk+=chart_type_30min*10
-sid_chk+=chart_type_day*20
-sid_chk+=chart_type_month*30
-sid_chk+=141     ; fester Offset (gehört zur Signatur)
+
+if (sig=="waldy-smarthome.de")
+then
+sid_chk=18
+endif
 
 #30min
 if wm>0
