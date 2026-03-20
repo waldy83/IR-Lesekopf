@@ -93,7 +93,7 @@ next
 wcs ]);
 wcs var chart=new google.visualization.AreaChart(document.getElementById('chart30'));
 endif
-wcs var options={chartArea:{left:40,width:'86%%'},legend:'none',title:'Tagesverlauf (30 min)',vAxis:{format:'#0.00 m3'},colors:['#2196F3'],areaOpacity:0.2};
+wcs var options={chartArea:{left:40,width:'86%%'},legend:'none',title:'Tagesverlauf',vAxis:{format:'#0.00 m3'},colors:['#2196F3'],areaOpacity:0.2};
 wcs chart.draw(data,options);}google.charts.setOnLoadCallback(draw30);</script>
 endif
 
