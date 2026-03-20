@@ -1,197 +1,275 @@
->D 40
-;*****
-; Gaszähler - DMY + Charts
-;
-; Chart Script by ottelo.jimdo.de - modified by waldy
-;
-; Tested by waldy
-;*****
-; - Haken bei "Skript aktivieren" setzen
-; - Skript auswaehlen
-; - Speichern anklicken
-;*****
-; Faktor
-; 1 imp ≙ 0,01 m³  =>  100
-; 1 imp ≙ 0,1 m³   =>  10
-; 1 imp ≙ 1,0 m³   =>  1
+>D 48
+;==================================================================
+; GASZÄHLER-SCRIPT (Historie + Charts)
+;==================================================================
+; Basis-Script: ottelo.jimdo.de  |  Modifiziert: waldy-smarthome.de
+;==================================================================
+
+; --- EINSTELLUNGEN (Hier anpassen) ---
+; Impuls-Faktor:
+; 100 = 0,01 m³/Imp | 10  = 0,1 m³/Imp | 1  = 1,0 m³/Imp
 factor=100
 
-; -- ARRAYS --
-; Tagesnetzbezug Tabelle 1-31
-M:p:dcon=0 31
-; Monatsverbrauch Tabelle 1-12
-M:p:mcon=0 12
+; Startwert des mechanischen Zählers (z.B. 36489.08)
+; Hinweis: Ohne Komma eingeben
+zaehler_start=0
 
-; -- VARS --
-; Netzbezug [m3]
-GasTotal=0
+; --- CHART-TYP AUSWAHL (0 = Balken | 1 = Linie) ---
+chart_type_30min=1
+chart_type_day=0
+chart_type_month=0
 
-; Tages, Monats, Jahres Verbrauch / Einspeisung
-p:mval=0
-p:dval=0
-p:yval=0
-
+; --- INTERNE VARIABLEN (Nicht ändern) ---
+res=0
+save=0
 tmp=0
-utm="00d 00h 00m"
 hour=0
 yr=0
 da=1
-save=0
+GasTotal=0
+utm="00d 00h 00m"
+M:p:dcon=0 31
+M:p:mcon=0 12
+M:p:g30=0 48
+p:mval=0
+p:dval=0
+p:yval=0
+m30=0
+last_gas=0
+avg_g=0
 
-; -- BOOT --
 >B
 =>sensor53 r
-; wird für das Monatschart benötigt
 is(0 "Jan|Feb|Mär|Apr|Mai|Jun|Jul|Aug|Sep|Okt|Nov|Dez|")
-;Deaktiviere MQTT beim Start, verhindert das falsche Werte gesendet werden
 smlj=0
+=>sensor53 c1 %zaehler_start%
+last_gas=sml[1]
 
-;Anfangszählerstand
-=>sensor53 c1 0
+#30min
+if wm>0
+then
+wcs <div id="chart30" style="width:400px;"></div>
+wcs <script language="JavaScript">function draw30(){
+if (chart_type_30min==0)
+then
+wcs var data=google.visualization.arrayToDataTable([['Zeit','m3',{role:'style'}],
+m30=int(((hours*60)+mins)/30)+1
+for tmp 1 48 1
+wcs [
+if (tmp%4==1)
+then
+wcs '%int((tmp-1)/2)%h'
+else
+wcs ''
+endif
+wcs ,%g30[tmp]%,
+if (tmp<m30)
+then
+wcs 'green'],
+endif
+if (tmp==m30)
+then
+wcs 'red'],
+endif
+if (tmp>m30)
+then
+wcs 'blue'],
+endif
+next
+wcs ]);
+wcs var chart=new google.visualization.ColumnChart(document.getElementById('chart30'));
+else
+wcs var data=google.visualization.arrayToDataTable([['Zeit','m3'],
+for tmp 1 48 1
+wcs [
+if (tmp%4==1)
+then
+wcs '%int((tmp-1)/2)%h'
+else
+wcs ''
+endif
+wcs ,%g30[tmp]%],
+next
+wcs ]);
+wcs var chart=new google.visualization.AreaChart(document.getElementById('chart30'));
+endif
+wcs var options={chartArea:{left:40,width:'86%%'},legend:'none',title:'Tagesverlauf (30 min)',vAxis:{format:'#0.00 m3'},colors:['#2196F3'],areaOpacity:0.2};
+wcs chart.draw(data,options);}google.charts.setOnLoadCallback(draw30);</script>
+endif
 
-; -- SUBS --
-
-; Tagesverbrauch Tabelle
 #daysub
-if wm>0 {
-wcs <div id="day" style="text-align:center;width:400px"></div>
-wcs <script language="JavaScript">function drawChart(){
-wcs var cssc={'headerRow':'hRow','rowNumberCell':'hCol','tableCell':'tCell'};
-wcs var data=google.visualization.arrayToDataTable([['Tag','Energie [m3]',{role: 'style'}],
+if wm>0
+then
+wcs <div id="day" style="width:400px;"></div>
+wcs <script language="JavaScript">function drawChartD(){
+if (chart_type_day==0)
+then
+wcs var data=google.visualization.arrayToDataTable([['Tag','m3',{role: 'style'}],
 for tmp 1 dcon[-1] 1
-	if (tmp==day) {
-		wcs [%tmp%,%dcon[tmp]%,'red'],
-	}
-	if (tmp<day) {
-		wcs [%tmp%,%dcon[tmp]%,'green'],
-	}
-	if (tmp>day) {
-		wcs [%tmp%,%dcon[tmp]%,''],
-	}
+wcs [%tmp%,%dcon[tmp]%,
+if (tmp<day)
+then
+wcs 'green'],
+endif
+if (tmp==day)
+then
+wcs 'red'],
+endif
+if (tmp>day)
+then
+wcs 'blue'],
+endif
 next
 wcs ]);
-wcs var options={chartArea:{left:40,width:'86%%'},legend:'none',title:'Tagesverbräuche (Monat %is[month]%)',vAxis:{format:'# m3'},hAxis:{title:'Tag',ticks:[1,5,10,15,20,25,30]}};
 wcs var chart=new google.visualization.ColumnChart(document.getElementById('day'));
-wcs chart.draw(data,options);}google.charts.setOnLoadCallback(drawChart);</script>
-}
-
-; Netzverbrauch Monat Tabelle
-#monthsub
-if wm>0 {
-wcs <div id="month" style="text-align:center;width:400px"></div>
-wcs <script language="JavaScript">function drawChart(){
-wcs var cssc={'headerRow':'hRow','rowNumberCell':'hCol','tableCell':'tCell'};
-wcs var data=google.visualization.arrayToDataTable([['Monat','Verbrauch [m3]',{role: 'style'}],
-for tmp 1 12 1
-	if (tmp<month) {
-		wcs ['%is[tmp]%',%mcon[tmp]%,'green'],
-	}
-	if (tmp==month) {
-		wcs ['%is[tmp]%',%mcon[tmp]%,'red'],
-	}
-	if (tmp>month) {
-		wcs ['%is[tmp]%',%mcon[tmp]%,'blue'],
-	}
+else
+wcs var data=google.visualization.arrayToDataTable([['Tag','m3'],
+for tmp 1 dcon[-1] 1
+wcs [%tmp%,%dcon[tmp]%],
 next
 wcs ]);
-wcs var options={chartArea:{left:40,width:'86%%'},legend:'none',title:'Verbräuche (Jahr %0(year-1)%/%0year%)',vAxis:{format:'# m3'}};
+wcs var chart=new google.visualization.AreaChart(document.getElementById('day'));
+endif
+wcs var options={chartArea:{left:40,width:'86%%'},legend:'none',title:'Tagesverbräuche (Monat %is[month]%)',vAxis:{format:'# m3'},colors:['#4CAF50'],areaOpacity:0.2};
+wcs chart.draw(data,options);}google.charts.setOnLoadCallback(drawChartD);</script>
+endif
+
+#monthsub
+if wm>0
+then
+wcs <div id="month" style="width:400px;"></div>
+wcs <script language="JavaScript">function drawChartM(){
+if (chart_type_month==0)
+then
+wcs var data=google.visualization.arrayToDataTable([['Monat','m3',{role: 'style'}],
+for tmp 1 12 1
+wcs ['%is[tmp]%',%mcon[tmp]%,
+if (tmp<month)
+then
+wcs 'green'],
+endif
+if (tmp==month)
+then
+wcs 'red'],
+endif
+if (tmp>month)
+then
+wcs 'blue'],
+endif
+next
+wcs ]);
 wcs var chart=new google.visualization.ColumnChart(document.getElementById('month'));
-wcs chart.draw(data,options);}google.charts.setOnLoadCallback(drawChart);</script>
-} chart.draw(data,options);}google.charts.setOnLoadCallback(drawChart);</script>
-}
+else
+wcs var data=google.visualization.arrayToDataTable([['Monat','m3'],
+for tmp 1 12 1
+wcs ['%is[tmp]%',%mcon[tmp]%],
+next
+wcs ]);
+wcs var chart=new google.visualization.AreaChart(document.getElementById('month'));
+endif
+wcs var options={chartArea:{left:40,width:'86%%'},legend:'none',title:'Verbräuche (Jahr %0year%)',vAxis:{format:'# m3'},colors:['#FF9800'],areaOpacity:0.2};
+wcs chart.draw(data,options);}google.charts.setOnLoadCallback(drawChartM);</script>
+endif
 
-;-- SML --
 >M 1
-; Setupline
 +1,14,c,1,-500,Gas
-1,1-0:1.8.0*255(@%factor%,Gesamtverbrauch,m3,total,18)
-#
+1,1-0:1.8.0*255(@%factor%,Gesamtverbrauch,m3,total,2)
 
-; -- JEDE SEKUNDE --
 >S
-if (save==1) {
+if (res==1)
+then
+res=0
+GasTotal=sml[1]
+dval=GasTotal
+mval=GasTotal
+yval=GasTotal
+avg_g=0
+for tmp 1 31 1 
+dcon[tmp]=0 
+next
+for tmp 1 12 1 
+mcon[tmp]=0 
+next
+for tmp 1 48 1 
+g30[tmp]=0 
+next
+svars
+print Reset durchgeführt - Zählerstand: %GasTotal%
+endif
+
+if (save==1)
+then
 save=0
 svars
-print Daten wurden gespeichert
-}
+print Daten gespeichert
+endif
 
-; Start MQTT erst wenn Daten vom Zaehler kommen
-if (sml[1]>0) {
+if (sml[1]>0)
+then
 smlj=1
-}
+endif
 
-; Warte auf NTP
-if (year<2020) {
-print NTP not ready
+if (year<2020)
+then
 break
-}
+endif
 
-; alle 60s
-if (upsecs%60==0) {
+if (upsecs%10==0)
+then
+avg_g+=sml[1]-last_gas
+last_gas=sml[1]
+endif
+
+if (upsecs%60==0)
+then
 hour=hours
 yr=year
-;Zeit seit letztem Boot
 utm=s(2.0(int(uptime/1440)))+"d "+s(2.0(int(uptime/60)%24))+"h "+s(2.0(uptime%60))+"m"
-
-; kopiere Netzbezug [m3] vom Zaehler (aus SML Variable)
 GasTotal=sml[1]
-; Tagesverbrauch [m3]
 dcon[day]=GasTotal-dval
-; Monatsverbrauch [m3]
 mcon[month]=GasTotal-mval
+m30=int(((hours*60)+mins)/30)+1
+g30[m30]+=avg_g
+avg_g=0
 
-; Tagesverbrauch Berechnung um Mitternacht
-if ((chg[hour]>0) and (hour==0)) {
-if (day>1) {
+if ((chg[hour]>0) and (hour==0))
+then
+for tmp 1 48 1 | g30[tmp]=0 | next
+if (day>1)
+then
 da=day
-} else {
-; Monatswechsel
-for tmp (da+1) 31 1
-dcon[tmp]=0
-next
-; monthly values
+else
+for tmp (da+1) 31 1 | dcon[tmp]=0 | next
 mval=GasTotal
-}
-if (chg[yr]>0) {
-; Jahreswechsel
+endif
+if (day==1 and month==1)
+then
 yval=GasTotal
-}
-; daily values
+endif
 dval=GasTotal
-; nur 1x um Mitternacht speichern
-svars 
-}
-}
+svars
+endif
+endif
 
-; WEB INTERFACE
 >W
+bu(save "Gespeichert" "Daten speichern")
+bu(res "Reset läuft..." "Verbrauch zurücksetzen")
 
-; web button
-bu(save "gespeichert!" "Daten sofort speichern")
+Tagesverbrauch: {m} %2(GasTotal-dval)% m3
+Monatsverbrauch: {m} %2(GasTotal-mval)% m3
+Jahresverbrauch: {m} %2(GasTotal-yval)% m3
 
-; Verbrauch
-Tagesverbrauch{m}%2(GasTotal-dval)% m3
-Monatsverbrauch{m}%2(GasTotal-mval)% m3
-Jahresverbrauch{m}%2(GasTotal-yval)% m3
+Datum: {m} %s(2.0day)%.%s(2.0month)%.%s(2.0year)% - %s(2.0hours)%:%s(2.0mins)%:%s(2.0secs)%
+Uptime: {m} %utm%
 
-; Zeit
-Datum{m}%s(2.0day)%.%s(2.0month)%.%s(2.0year)% - %s(2.0hours)%:%s(2.0mins)%:%s(2.0secs)%
-Uptime{m}%utm%
 $<div style="margin-left:-20px">
-
-; Lade google chart javascript (muss manuell hier geladen werden, wenn im Skript nicht gc() verwendet wird!!)
 $<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
 $<script type="text/javascript">google.charts.load('current',{packages:['corechart']});</script>
 
-; Tagesverbrauch Tabelle
+%=#30min
 %=#daysub
-
-; Netzverbrauch und Einspeisung Monat Tabelle
 %=#monthsub
 
 $<center><span style="font-size:10px;">
-$Original by ottelo.jimdo.de - modified by waldy<br>
-$Hinweis: Die Daten werden immer um Mitternacht gespeichert!<br>
-$Der Restart Button speichert ebenfalls die Daten.<br>
-
+$Original by ottelo.jimdo.de - modified by waldy-smarthome.de<br>
 $</span></center></div>
