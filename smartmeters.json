@@ -77,6 +77,7 @@
 	    { "manufacturer": "Logarex", "label": "Logarex-LK11BL", "filename": "Logarex-LK11BL.script" },
 	    { "manufacturer": "Logarex", "label": "Logarex-LK13BD", "filename": "Logarex-LK13BD.script" },
 	    { "manufacturer": "Logarex", "label": "Logarex-LK13BE_OBIS", "filename": "Logarex-LK13BE_OBIS.script" },
+		{ "manufacturer": "Logarex", "label": "Logarex-LK13BE_OBIS+EMU", "filename": "Logarex-LK13BE_OBIS-EMU.script" },
 	    { "manufacturer": "Logarex", "label": "Logarex-LK13BE_OBIS+Chart", "filename": "Logarex-LK13BE_OBIS+Chart.script" },
 	    { "manufacturer": "Logarex", "label": "Logarex-LK13BE_SML", "filename": "Logarex-LK13BE_SML.script" },
 	    { "manufacturer": "Logarex", "label": "Logarex-LK13BE_SML+Chart", "filename": "Logarex-LK13BE_SML+Chart.script" },
