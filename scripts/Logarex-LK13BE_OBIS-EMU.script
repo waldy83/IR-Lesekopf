@@ -1,0 +1,275 @@
+>D 250
+
+; Zum erstmaligen Einrichten des Scripts folgendes in die Console eingeben (erst wenn auch Werte vom Zähler kommen!)
+;script>=#init
+
+; PermVars (max:1536bytes=384vars): Tages, Monats, Jahres Verbrauch / Einspeisung
+p:dval=0
+p:dval2=0
+p:mval2=0
+p:mval=0
+p:yval=0
+p:yval2=0
+p:pwroffset=0
+p:pwrforce=0
+p:throttle=1
+p:ctrlopt=0
+t:t1=60
+tmp=0
+hr=0
+;-- SHELLY EMULATION --
+res=0
+c1p=0
+c2p=0
+c3p=0
+c1c=0
+c2c=0
+c3c=0
+cpwr=0
+str=""
+mstr1=""
+mstr2=""
+mstr3=""
+header=""
+once=0
+udpsent=0
+udpapi=0
+
+
+>B
+->SetOption57 0
+->sensor53 r
+smlj=0
+header="{\"id\":0,\"src\":\"shellypro3em-"+maca+"\",\"result\":"
+throttle=mp(throttle <1 1 >60 60)
+pwroffset=mp(pwroffset <-200 -200 >200 200)
+
+#init
+dval=sml[2]
+dval2=sml[3]
+mval=sml[2]
+mval2=sml[3]
+yval=sml[2]
+yval2=sml[3]
+pwroffset=0
+pwrforce=0
+throttle=1
+ctrlopt=0
+->Backlog2 otaurl KEIN OTA UPGRADE VIA WEBSERVER!
+->Backlog2 Timezone 99;TimeStd 0,0,10,1,3,60;TimeDst 0,0,3,1,2,120
+svars
+
+#save
+svars
+print gespeichert!
+
+;-- SHELLY EMULATION --
+>ah
+res=won(1 "/rpc/*")
+
+>on1
+str=warg
+if (str!="") {
+;print RPC: %str%
+
+res=ins(str "EM.GetStatus")
+if res>=0 {
+=#getstat
+tmp=sl(mstr1)+sl(mstr2)
+=#header
+wcs so(4)
+wcs %header%
+wcs %mstr1%
+wcs %mstr2%
+wcf
+break
+}
+
+res=ins(str "Shelly.GetStatus")
+if res>=0 {
+=#getshellystat
+tmp=sl(mstr1)+sl(mstr2)+sl(mstr3)
+=#header
+wcs so(4)
+wcs %header%
+wcs %mstr1%
+wcs %mstr2%
+wcs %mstr3%
+wcf
+break
+}
+print unknown rpc request: %str%
+}
+
+#getstat
+;EM.GetStatus
+dp(0 2)
+;mstr1="{\"id\":0,\"a_current\":"+s(c1c)+",\"a_voltage\":230,\"a_act_power\":"+s(c1p)+",\"a_aprt_power\":"+s(c1p)+",\"a_pf\":1,\"a_freq\":50,"
+;mstr1+="\"b_current\":"+s(c2c)+",\"b_voltage\":230,\"b_act_power\":"+s(c2p)+",\"b_aprt_power\":"+s(c2p)+",\"b_pf\":1,\"b_freq\":50,"
+;mstr2="\"c_current\":"+s(c3c)+",\"c_voltage\":230,\"c_act_power\":"+s(c3p)+",\"c_aprt_power\":"+s(c3p)+",\"c_pf\":1,\"c_freq\":50,"
+;mstr2+="\"total_current\":"+s(c1c+c2c+c3c)+",\"total_act_power\":"+s(cpwr)+",\"total_aprt_power\":"+s(cpwr)+"}}"
+mstr1="{\"id\":0,\"a_act_power\":"+s(c1p)+",\"b_act_power\":"+s(c2p)+","
+mstr2="\"c_act_power\":"+s(c3p)+",\"total_act_power\":"+s(cpwr)+"}"
+
+#getshellystat
+;Shelly.GetStatus Beispiel Ausgabe https://forum.openwb.de/viewtopic.php?t=7444
+dp(0 2)
+mstr1="{\"em:0\":{\"id\":0,\"a_act_power\":"+s(c1p)+",\"b_act_power\":"+s(c2p)+",\"c_act_power\":"+s(c3p)+",\"total_act_power\":"+s(cpwr)+"},"
+;mstr2="\"emdata:0\":{\"id\":0,\"a_total_act_energy\":0,\"a_total_act_ret_energy\":0,\"b_total_act_energy\":0,\"b_total_act_ret_energy\":0,\"c_total_act_energy\":0,\"c_total_act_ret_energy\":0,\"total_act\":0,\"total_act_ret\":0}}"
+mstr2="\"emdata:0\":{\"id\":0,\"a_total_act_energy\":"+s(sml[2]*1000)+",\"a_total_act_ret_energy\":"+s(sml[3]*1000)+",\"b_total_act_energy\":0,\"b_total_act_ret_energy\":0,\"c_total_act_energy\":0,\"c_total_act_ret_energy\":0,"
+mstr3="\"total_act\":"+s(sml[2]*1000)+",\"total_act_ret\":"+s(sml[3]*1000)+"}}"
+
+#header
+; Beispiel https://shelly-api-docs.shelly.cloud/gen2/ComponentsAndServices/HTTP/#httpget-example
+header="HTTP/1.1 200 OK\r\nServer: ShellyHTTP/1.0.0\r\nContent-Type: application/json\r\nContent-Length: "+s(0tmp)+"\r\nConnection: close\r\n\r\n"
+
+>F
+;-- SHELLY EMULATION --
+; UDP Anfrage beantworten
+str=udp(1)
+if (str=="") {
+if (udpsent==0 or udpapi==0) {
+break
+}
+switch udpapi
+case 1
+str="EM.GetStatus"
+case 2
+str="Shelly.GetStatus"
+ends
+}
+;print UDP: %str%
+header="{\"id\":0,\"src\":\"shellypro3em-"+maca+"\",\"result\":"
+res=ins(str "EM.GetStatus")
+if (res>=0) {
+=#getstat
+mstr2+="}"
+udp(2 header mstr1 mstr2)
+udpapi=1
+udpsent=0
+break
+}
+res=ins(str "Shelly.GetStatus")
+if res>=0 {
+=#getshellystat
+mstr3+="}"
+udp(2 header mstr1 mstr2)
+udp(2 mstr3)
+udpapi=2
+udpsent=0
+break
+}
+
+>S
+; Warte auf NTP und Zähler
+if ((year<2020) or (sml[2]==0)) {
+print auf NTP/Zähler warten
+break
+}
+; Starte MQTT erst wenn Daten vom Stromzähler kommen
+smlj=1
+
+; alle 60s
+if (t1==0) {
+t1=60
+hr=hours
+; Tages-, Monats-, Jahresverbrauch um Mitternacht
+; Aktualisiere & speichere Zählerstände
+if ((chg[hr]>0) and (hr==0)) {
+; Tageswechsel
+dval=sml[2]
+dval2=sml[3]
+if (day==1) {
+; Monatswechsel
+mval=sml[2]
+mval2=sml[3]
+}
+if (day*month==1) {
+; Jahreswechsel
+yval=sml[2]
+yval2=sml[3]
+}
+; nur 1x um Mitternacht speichern
+=#save
+}
+}
+
+;-- SHELLY EMULATION --
+if (once==0) {
+; starte mDNS damit Marstek den emulierten Shelly findet
+mdns("shellypro3em-" "-" "shelly")
+; start UDP für Datenkommunikation
+; Port 1010 oder ggf. 2220 für B2500
+udp(0 1010)
+once=1
+}
+
+; Werte nur alle x Sek updaten (throttle=1 => sekündlich)
+if (upsecs%throttle==0) {
+; Optimierung Regler
+if (ctrlopt>0) {
+if (sml[1]>pwroffset) {
+cpwr=(sml[1]-pwroffset)/4
+} else {
+cpwr=(sml[1]-pwroffset)/0.8
+}
+} else {
+cpwr=sml[1]-pwroffset
+}
+
+; Standard: Zähler sendet nur Gesamtleistung
+c1p=cpwr
+; Optional: Wenn Zähler auch Einzelleistungen sendet (L1-3). Marstek prüft dann, auf welcher Phase er verbunden ist. ; entfernen um zu verwenden.
+;c1p=sml[4]
+;c2p=sml[5]
+;c3p=sml[6]
+; Ströme berechnen
+c1c=c1p/230
+;c2c=c2p/230
+;c3c=c3p/230
+}
+; Optional: Sende auch, wenn Marstek nicht anfragt, verbessert Marstek Regelung
+if (pwrforce>0) {
+udpsent=1
+}
+
+
+>W
+bu(_save "" "Daten speichern")
+Leistung (an PV-Akku){m}%0cpwr% W
+Tagesverbrauch{m}%2(sml[2]-dval)% kWh
+Monatsverbrauch{m}%2(sml[2]-mval)% kWh
+Jahresverbrauch{m}%2(sml[2]-yval)% kWh
+Tageseinspeisung{m}%2(sml[3]-dval2)% kWh
+Monatseinspeisung{m}%2(sml[3]-mval2)% kWh
+Jahreseinspeisung{m}%2(sml[3]-yval2)% kWh
+Uptime{m}%0uptime% min
+$<button type="submit" onclick="if(confirm('init?')){seva(1,'_init');}">Daten initialisieren</button>
+$<span style="font-size:10px;">
+$<b>PV-Akku Einstellungen</b><br>
+$[Variable] in Console ändern: script>var=x<br>
+$- Update verzögern [throttle]: %0throttle% s (1s = AUS)<br>
+$- Regleroptimierung [ctrlopt]: %0ctrlopt% (0 = AUS)<br>
+$- Offset [pwroffset]: %0pwroffset% W (0W = AUS)<br>
+$- UDP-Pakete erzwingen [pwrforce]: %0pwrforce% (0 = AUS)<br>
+$Script: %0slen% chars / 4096(1M) 8192(4M)
+$<hr>
+$<center>Version 02.04.2026 (ShellyEmuSimple) by ottelo.jimdo.de<br>
+$Credits to gemu2015<br>
+$</span></center>
+
+>M 1
+; Beispiel MT175 mit HichiV1/V2
+;+1,3,s,0,9600,MT175,1
++1,3,o,0,9600,LK13BE,1,30,2F3F210D0A,063035310D0A
+1,1-0:16.7.0*255(@1,Verbrauch aktuell,W,power,2
+1,1-0:1.8.0*255(@1,Gesamtverbrauch,kWh,total_in,2
+1,1-0:2.8.0*255(@1,Gesamteinspeisung,kWh,total_out,2
+;1,77070100100700ff@1,Leistung,W,Power_curr,0
+;1,77070100010800ff@1000,Verbrauch,KWh,Total_in,2
+;1,77070100020800ff@1000,Einspeisung,KWh,Total_out,2
+;optional - Falls die Leistung aller 3 Phasen ausgegeben wird, optional relevant für Shelly Emulation sml[4],[5],[6]
+;1,77070100240700ff@1,L1,W,L1,0
+;1,77070100380700ff@1,L2,W,L2,0
+;1,770701004C0700ff@1,L3,W,L3,0
+#
